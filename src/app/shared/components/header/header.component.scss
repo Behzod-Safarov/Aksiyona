@@ -6,6 +6,7 @@ body {
     background-color: #f9f9f9;
 }
 
+
 /* General Top Bar Styles */
 .top-bar {
     display: flex;
@@ -37,6 +38,10 @@ body {
     border-radius: 3px; /* Optional: Rounded corners */
 }
 
+.menu-btn{
+    display: none;
+}
+
 /* Dropdown Icon */
 .dropdown-icon {
     width: 14px;
@@ -53,7 +58,6 @@ body {
     align-items: center;
     padding: 20px;
     background: white;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 /* Logo */
@@ -229,80 +233,596 @@ body {
     border-bottom: 2px solid #00b200;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
+
+.beauty {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+.beauty a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.menu-beauty {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .beauty */
+.beauty:hover .menu-beauty {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-beauty ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-beauty ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-beauty ul li:hover {
+    color: #007bff;
+}
+
+/* Main menu container */
+.things-to-do {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 10px;
+}
+
+/* Ensuring the link inside behaves well */
+.things-to-do a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Dropdown menu styling */
+.menu-things-to-do {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Display menu when hovering */
+.things-to-do:hover .menu-things-to-do {
+    display: block;
+}
+
+/* Menu title styling */
+.menu-things-to-do h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* List container */
+.menu-things-to-do ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* List items */
+.menu-things-to-do ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+/* Hover effect */
+.menu-things-to-do ul li:hover {
+    color: #007bff;
+}
+
+
+/* Auto & Home menu container */
+.auto-home {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+/* Ensuring the link inside aligns properly */
+.auto-home a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Dropdown menu styling */
+.menu-auto-home {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .auto-home */
+.auto-home:hover .menu-auto-home {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-auto-home ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-auto-home ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-auto-home ul li:hover {
+    color: #007bff;
+}
+
+/* Food & Drink menu container */
+.food-drink {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Ensuring the link inside aligns properly */
+.food-drink a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+/* Dropdown menu styling */
+.menu-food-drink {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .food-drink */
+.food-drink:hover .menu-food-drink {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-food-drink ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-food-drink ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-food-drink ul li:hover {
+    color: #007bff;
+}
+
+/* Gifts menu container */
+.gifts {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+/* Ensuring the link inside aligns properly */
+.gifts a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Dropdown menu styling */
+.menu-gifts {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .gifts */
+.gifts:hover .menu-gifts {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-gifts ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-gifts ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-gifts ul li:hover {
+    color: #007bff;
+}
+
+/* Local menu container */
+.local {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Ensuring the link inside aligns properly */
+.local a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+/* Dropdown menu styling */
+.menu-local {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .local */
+.local:hover .menu-local {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-local ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-local ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-local ul li:hover {
+    color: #007bff;
+}
+
+/* Travel menu container */
+.travel {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Ensuring the link inside aligns properly */
+.travel a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+/* Dropdown menu styling */
+.menu-travel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .travel */
+.travel:hover .menu-travel {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-travel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-travel ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-travel ul li:hover {
+    color: #007bff;
+}
+
+/* Goods menu container */
+.goods {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Ensuring the link inside aligns properly */
+.goods a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+/* Dropdown menu styling */
+.menu-goods {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .goods */
+.goods:hover .menu-goods {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-goods ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-goods ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-goods ul li:hover {
+    color: #007bff;
+}
+
+/* Coupons menu container */
+.coupons {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Ensuring the link inside aligns properly */
+.coupons a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+    padding: 10px;
+}
+
+/* Dropdown menu styling */
+.menu-coupons {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    width: 400px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+/* Show menu when hovering over .coupons */
+.coupons:hover .menu-coupons {
+    display: block;
+}
+
+/* Styling for the menu items */
+.menu-coupons ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-coupons ul li {
+    width: 50%;
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.menu-coupons ul li:hover {
+    color: #007bff;
+}
+
+
+@media (max-width: 1000px) {
+    .top-bar {
+        display: none;
+    }
     .header-main {
         flex-direction: column;
         gap: 15px;
         padding: 15px;
     }
-
-    .search-bar {
-        width: 70%;
-    }
-
-    .nav-menu {
-        gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .top-bar {
-        font-size: 12px;
-        padding: 5px 15px;
-    }
-
-    .search-bar {
-        width: 90%;
-    }
-
-    .nav-menu {
-        flex-wrap: wrap;
-        gap: 15px;
-        padding: 10px;
-    }
-
-    .nav-menu a {
-        font-size: 14px;
-    }
-
-    .header-icons {
-        gap: 12px;
-    }
-
-    .sign-in-btn {
-        padding: 7px 14px;
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 480px) {
+    
     .header-main {
         padding: 10px;
     }
-
+    .menu-btn {
+        display: block;
+        font-size: 30px;
+        cursor: pointer;
+        position: absolute;
+        top: 35px;
+        left: 20px;
+        background: none;
+        border: none;
+    }
     .logo {
-        font-size: 24px;
+        font-size: 25px;
+        position: absolute;
+        top: 30px;
+        left: 15%;
+        padding: 10px; /* Optional for spacing */
     }
 
-    .search-bar {
-        width: 100%;
-        max-width: none;
-        border-radius: 20px;
+    .heart-icon {
+        font-size: 20px;
+        position: absolute;
+        top: 40px;
+        right: 40%;
     }
 
-    .header-icons span {
-        font-size: 17px;
+    .cart-icon {
+        font-size: 20px;
+        position: absolute;
+        top: 40px;
+        right: 30%;
+    }
+    .notification{
+        position: absolute;
+        top: 40px;
+        right: 20%;
     }
 
     .sign-in-btn {
-        font-size: 13px;
-        padding: 6px 12px;
-    }
+        width: 40px;
+        height: 40px;
+        padding: 10px;
+        position: absolute;
+        top: 30px;
+        right: 6%;
+      }
 
-    .nav-menu {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
+      .sign-in-btn span,
+      .dropdown-icon {
+        display: none;
+      }
+
+    .search-bar { 
+        position: absolute;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: none;
+        border-radius: 20px;
     }
+    
+    .nav-menu {
+        display: none;
+    }
+    
 }
