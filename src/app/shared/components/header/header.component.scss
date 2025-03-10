@@ -1,46 +1,264 @@
-/* General Styles */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+    }
+
+
+    /* General Top Bar Styles */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f8f8;
+        font-size: 14px;
+        padding: 6px 20px;
+        color: #333;
+    }
+
+    /* Left side */
+    .top-left {
+        font-weight: 500px;
+    }
+
+    /* Right side */
+    .top-right {
+        display: flex;
+        align-items: center;
+        gap: 6px; /* Space between flag, text, and icon */
+        cursor: pointer;
+    }
+
+    /* Flag Styling */
+    .flag-icon {
+        width: 20px;
+        height: 15px;
+        border-radius: 3px; /* Optional: Rounded corners */
+    }
+
+  
+    .category-menu {
+        position: absolute;
+        top: 120px; /* Distance from top */
+        left: 0;
+        width: 100%; /* Full width */
+        background: white; /* Ensure background covers content */
+        z-index: 1000; /* Keep it above other elements */
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        list-style: none;
+        padding: 5px 0;
+        border-bottom: 1px solid #ddd;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+  
+  .category-info {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 4px;
+  }
+  
+  .category-info.active,
+  .category-info:hover {
+    color: #2ecc71;
+    border-bottom: 2px solid #2ecc71;
+  }
+  
+  .large-category-item {
+    padding: 15px 10px;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .large-sub-menu {
+    position: absolute;
+    top: 80%;
+    left: 0;
+    background: white;
+    padding: 20px;
+    min-width: 400px; /* Adjust width based on content */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    display: none;
+    z-index: 100;
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  
+  /* Show submenu when hovered */
+  .large-category-item:hover .large-sub-menu,
+  .large-sub-menu:hover {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Header Styling */
+  .large-sub-header {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 12px;
+  }
+
+  .large-sub-header :hover {
+    color: #2ecc71;
+    background-color: #009900;
+  }
+  
+  /* Subcategories Grid Layout */
+  .large-subcategories-container ul {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns */
+    gap: 12px 40px; /* Space between items */
     padding: 0;
-    background-color: #f9f9f9;
+    list-style: none;
+  }
+  
+  /* Subcategory Item */
+  .large-subcategories-container li {
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 6px 0;
+  }
+  
+  /* Hover Effect */
+  .large-subcategories-container li:hover {
+    color: #2ecc71;
+  }
+  
+  
+.menu-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1002; /* Ensure it's on top */
 }
 
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+  
+  .overlay.show {
+    display: block;
+  }
+  
+  /* Sidebar Menu */
+  .menu {
+    position: fixed;
+    top: 0;
+    left: -400px; /* HIDDEN on the left */
+    width: 300px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s ease-in-out;
+    padding: 20px;
+    z-index: 1000;
+  }
+  
+  .menu.open {
+    left: 0; /* SLIDE IN from left */
+  }
 
-/* General Top Bar Styles */
-.top-bar {
+  /* Close Button */
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+  }
+  
+  /* Category List */
+  .category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .category-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 15px 10px;
+  }
+  
+  .category {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #f8f8f8;
-    font-size: 14px;
-    padding: 6px 20px;
-    color: #333;
-}
-
-/* Left side */
-.top-left {
-    font-weight: 500;
-}
-
-/* Right side */
-.top-right {
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  /* Category Icon */
+  .category-info {
     display: flex;
     align-items: center;
-    gap: 6px; /* Space between flag, text, and icon */
+  }
+  
+  .icon {
+    font-size: 20px;
+    margin-right: 10px;
+  }
+  
+  /* Arrow Rotation */
+  .arrow {
+    transition: transform 0.3s ease;
     cursor: pointer;
-}
-
-/* Flag Styling */
-.flag-icon {
-    width: 20px;
-    height: 15px;
-    border-radius: 3px; /* Optional: Rounded corners */
-}
-
-.menu-btn{
-    display: none;
-}
+  }
+  
+  .arrow.rotated {
+    transform: rotate(180deg);
+  }
+  
+  .subcategory-list {
+    list-style: none;
+    padding-left: 20px; /* Indent under category */
+    display: none; /* Initially hidden */
+  }
+  
+  .subcategory-list.open {
+    display: block; /* Show when open */
+  }
+  
+  .subcategory-list li {
+    cursor: pointer;
+    padding: 8px 12px;
+    background: #f9f9f9;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+  
+  .subcategory-list li:hover {
+    background: #ddd; /* Hover effect */
+  }
+  
+  
+  
 
 /* Dropdown Icon */
 .dropdown-icon {
@@ -49,7 +267,6 @@ body {
     stroke-width: 2;
     color: #333;
 }
-
 
 /* Header Main */
 .header-main {
@@ -62,85 +279,95 @@ body {
 
 /* Logo */
 .logo {
+    padding-left: 180px;
     font-size: 28px;
     font-weight: bold;
     color: #00b200;
 }
-
-/* Search Bar */
-.search-bar {
-    display: flex;
-    align-items: center;
-    width: 50%;
-    max-width: 650px;
-    border: 2px solid #00b200;
-    border-radius: 30px;
-    padding: 4px;
-    background: white;
-    transition: all 0.3s ease-in-out;
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
 }
 
-.search-bar:hover {
-    box-shadow: 0px 0px 10px rgba(0, 178, 0, 0.2);
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 6px;
+  border-radius: 50px;
+  gap: 10px;
+  position: relative;
+  border: 2px solid #2ecc71; /* Change to your preferred color */
+}
+
+.search-button {
+  background: #2ecc71; /* Change to your preferred color */
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 30px;
+  cursor: pointer;
 }
 
 .search-bar input {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    border-radius: 30px;
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 10px;
 }
 
 .location-btn {
-    background-color: #f0f0f0;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 15px;
-    margin: 0 5px;
-    font-size: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px; /* Space between text and icon */
-    transition: background 0.2s ease-in-out;
+  background: #f8f8f8;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
 }
 
-.location-btn:hover {
-    background: #ddd;
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-/* SVG Icon Styling */
-.dropdown-icon {
-    width: 16px; /* Adjust size as needed */
-    height: 16px;
-    stroke-width: 2;
-    color: #333; /* Same as text */
+.dropdown-search {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  outline: none;
+  font-size: 14px;
 }
 
-
-.search-button {
-    padding: 12px;
-    background-color: #00b200;
-    border-radius: 53%;
-    border: none;
-    color: white;
-    font-size: 3px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out, background 0.3s ease;
+.location-item {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
 }
 
-.search-button:hover {
-    background: #009900;
-    transform: scale(1.1);
+.location-item:hover {
+  background: #f2f2f2;
 }
 
 /* Header Icons */
 .header-icons {
+    padding-right: 180px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 /* Align text properly with icons without changing icons */
@@ -201,549 +428,6 @@ body {
     width: 16px;
     height: 16px;
     margin-left: 4px; /* Slight spacing from text */
-}
-
-
-.nav-menu {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    padding: 12px 0;
-    border-bottom: 1px solid #ddd;
-    background: white;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.05); /* 👈 Soft shadow */
-}
-
-/* Increased text size for better readability */
-.nav-menu a {
-    text-decoration: none;
-    color: #333;
-    font-size: 16px; /* Increased from 15px */
-    display: flex;
-    align-items: center;
-    gap: 6px; /* Space between icon and text */
-    padding-bottom: 5px;
-    border-bottom: 2px solid transparent;
-    transition: color 0.3s ease, border-bottom 0.3s ease;
-}
-
-.nav-menu a:hover,
-.nav-menu a.active {
-    color: #00b200;
-    border-bottom: 2px solid #00b200;
-}
-
-
-.beauty {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-.beauty a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-}
-
-.menu-beauty {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .beauty */
-.beauty:hover .menu-beauty {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-beauty ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-beauty ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-beauty ul li:hover {
-    color: #007bff;
-}
-
-/* Main menu container */
-.things-to-do {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-    padding: 10px;
-}
-
-/* Ensuring the link inside behaves well */
-.things-to-do a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Dropdown menu styling */
-.menu-things-to-do {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Display menu when hovering */
-.things-to-do:hover .menu-things-to-do {
-    display: block;
-}
-
-/* Menu title styling */
-.menu-things-to-do h3 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* List container */
-.menu-things-to-do ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-/* List items */
-.menu-things-to-do ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-/* Hover effect */
-.menu-things-to-do ul li:hover {
-    color: #007bff;
-}
-
-
-/* Auto & Home menu container */
-.auto-home {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-/* Ensuring the link inside aligns properly */
-.auto-home a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Dropdown menu styling */
-.menu-auto-home {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .auto-home */
-.auto-home:hover .menu-auto-home {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-auto-home ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-auto-home ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-auto-home ul li:hover {
-    color: #007bff;
-}
-
-/* Food & Drink menu container */
-.food-drink {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Ensuring the link inside aligns properly */
-.food-drink a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-/* Dropdown menu styling */
-.menu-food-drink {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .food-drink */
-.food-drink:hover .menu-food-drink {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-food-drink ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-food-drink ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-food-drink ul li:hover {
-    color: #007bff;
-}
-
-/* Gifts menu container */
-.gifts {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-/* Ensuring the link inside aligns properly */
-.gifts a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Dropdown menu styling */
-.menu-gifts {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .gifts */
-.gifts:hover .menu-gifts {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-gifts ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-gifts ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-gifts ul li:hover {
-    color: #007bff;
-}
-
-/* Local menu container */
-.local {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Ensuring the link inside aligns properly */
-.local a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-/* Dropdown menu styling */
-.menu-local {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .local */
-.local:hover .menu-local {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-local ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-local ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-local ul li:hover {
-    color: #007bff;
-}
-
-/* Travel menu container */
-.travel {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Ensuring the link inside aligns properly */
-.travel a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-/* Dropdown menu styling */
-.menu-travel {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .travel */
-.travel:hover .menu-travel {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-travel ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-travel ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-travel ul li:hover {
-    color: #007bff;
-}
-
-/* Goods menu container */
-.goods {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Ensuring the link inside aligns properly */
-.goods a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-/* Dropdown menu styling */
-.menu-goods {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .goods */
-.goods:hover .menu-goods {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-goods ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-goods ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-goods ul li:hover {
-    color: #007bff;
-}
-
-/* Coupons menu container */
-.coupons {
-    position: relative;
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Ensuring the link inside aligns properly */
-.coupons a {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: inherit;
-    padding: 10px;
-}
-
-/* Dropdown menu styling */
-.menu-coupons {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: 400px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 10;
-    border-radius: 5px;
-}
-
-/* Show menu when hovering over .coupons */
-.coupons:hover .menu-coupons {
-    display: block;
-}
-
-/* Styling for the menu items */
-.menu-coupons ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.menu-coupons ul li {
-    width: 50%;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.menu-coupons ul li:hover {
-    color: #007bff;
 }
 
 
@@ -821,7 +505,7 @@ body {
         border-radius: 20px;
     }
     
-    .nav-menu {
+    .category-menu{
         display: none;
     }
     
