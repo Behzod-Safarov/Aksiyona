@@ -257,8 +257,6 @@
     background: #ddd; /* Hover effect */
   }
   
-  
-  
 
 /* Dropdown Icon */
 .dropdown-icon {
@@ -329,18 +327,137 @@
   font-weight: bold;
 }
 
-.dropdown-menu {
+.clear-btn {
   position: absolute;
-  top: 110%;
-  left: 0;
-  width: 100%;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-  z-index: 9999;
-  padding: 15px;
-  max-height: 300px;
+  top: 5%;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.clear-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+.close-btn {
+  position: absolute;
+  top: 1%; /* Move slightly down */
+  right: 15px; /* Move slightly right */
+  background: none;
+  border: none;
+  font-size: 28px; /* Increase size */
+  cursor: pointer;
+  color: #444;
+  transition: color 0.2s ease-in-out, transform 0.2s;
+  padding: 10px; /* Add padding for better touch area */
+}
+
+.close-btn:hover {
+  color: #111;
+  transform: scale(1.2); /* Slightly enlarge on hover */
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  padding: 20px;
+  padding-top: 50px;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+  min-width: 260px;
+  max-height: 340px;
   overflow-y: auto;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+  display: flex;
+  flex-wrap: wrap; /* Allow columns */
+  gap: 15px;
+}
+
+/* Regions Layout - Multi-column */
+.regions-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Dynamic columns */
+  gap: 12px;
+  width: 100%;
+}
+
+.region-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease-in-out;
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.region-item:hover {
+  background-color: rgba(0, 0, 0, 0.07);
+}
+
+.region-item.active {
+  background-color: #2ecc71;
+  color: #fff;
+}
+
+/* Arrow Styling */
+.arrow-large {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Subregions - Multi-column */
+.subregion-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Multi-column for subregions */
+  gap: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #2ecc71;
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.subregion-container label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background 0.2s ease-in-out;
+}
+
+.subregion-container label:hover {
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.subregion-container input[type="checkbox"] {
+  accent-color: #2ecc71;
+  transform: scale(1.1);
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-search {
@@ -467,6 +584,11 @@
         position: absolute;
         top: 40px;
         right: 40%;
+    }
+
+    .heart-icon :hover {
+        
+        color: #2ecc71;
     }
 
     .cart-icon {

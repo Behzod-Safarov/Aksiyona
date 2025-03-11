@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener  } from '@angular/core';
 import { CommonModule } from '@angular/common'; // ✅ Import qilish shart
 import { FormsModule } from '@angular/forms';
 
@@ -67,42 +67,106 @@ export class HeaderComponent {
     }
   ];
 
-  showDropdown = false;
-  selectedLocation: string | null = null;
-  searchQuery = '';
   locations = [
-    "Uzbek American Association of Chicago, Van Street, Elgin",
-    "UZB TRANS, INC, New Avenue, Lemont",
-    "Uzbegim - Halal Market, Royal Point Drive, Cincinnati",
-    "Uzbek Inc, Main Street, Lisle",
-    "ANJIR UZBEK HALAL CUISINE, Butterfield Road, Downers Grove"
+    { region: "Illinois", subregions: ["Chicago", "Elgin", "Lisle", "Downers Grove", "Lemont","2"], expanded: false },
+    { region: "Ohio", subregions: ["Cincinnati"], expanded: false },
+    { region: "Uzb", subregions: ["anaqa"], expanded: false },
   ];
 
-  filteredLocations = [...this.locations];
+  selectedRegion: string | null = null;
+  selectedSubregions: { [key: string]: string[] } = {}; // Stores selected subregions per region
+  showDropdown = false;
+  searchQuery = "";
 
-  toggleDropdown() {
+  constructor() {
+    // Initialize selectedSubregions object
+    this.locations.forEach(location => {
+      this.selectedSubregions[location.region] = [];
+    });
+  }
+
+  toggleDropdown(event: Event) {
+    event.stopPropagation();
     this.showDropdown = !this.showDropdown;
+    
+    if (this.showDropdown) {
+      this.selectedSubregions = { ...this.selectedSubregions }; // Ensure a new reference
+    }
+  }
+  // Close dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event) {
+    const dropdown = document.querySelector('.dropdown-menu');
+    if (dropdown && !dropdown.contains(event.target as Node)) {
+      this.showDropdown = false;
+    }
   }
 
-  filterLocations() {
-    this.filteredLocations = this.locations.filter(loc =>
-      loc.toLowerCase().includes(this.searchQuery.toLowerCase())
-    );
-  }
 
-  selectLocation(location: string) {
-    this.selectedLocation = location;
+  closeRegionsMenu() {
     this.showDropdown = false;
   }
+  
+  hertIconClicked() {
+    console.log("Heart icon clicked");
+  }
+  // Select/deselect subregions and log the selection
+  selectSubregion(region: string, subregion: string) {
+    if (!this.selectedSubregions[region]) {
+      this.selectedSubregions[region] = []; // Ensure array exists before accessing it
+    }
+  
+    if (this.selectedSubregions[region].includes(subregion)) {
+      this.selectedSubregions[region] = this.selectedSubregions[region].filter(s => s !== subregion);
+    } else {
+      this.selectedSubregions[region].push(subregion);
+    }
+  
+    console.log("Region:", region, "Selected Subregions:", this.selectedSubregions[region]);
+  }
+  
+  getTruncatedLocation(): string {
+    let selections: string[] = [];
 
-  setCurrentLocation() {
-    this.selectedLocation = "Current Location";
-    this.showDropdown = false;
+    for (let region in this.selectedSubregions) {
+      if (this.selectedSubregions[region].length > 0) {
+        selections.push(`${region}: ${this.selectedSubregions[region].join(', ')}`);
+      }
+    }
+
+    let result = selections.length > 0 ? selections.join(" | ") : "Select Location";
+
+    // Truncate if the length exceeds 40 characters
+    return result.length > 40 ? result.substring(0, 30) + "..." : result;
   }
 
-  search(query: string) {
-    this.searchQuery = query;
-    console.log(`Searching for: ${this.searchQuery}`);
+
+  // Check if a subregion is selected
+  isSubregionSelected(region: string, subregion: string): boolean {
+    return this.selectedSubregions[region]?.includes(subregion);
+  }
+
+  toggleLocation(selectedLocation: any) {
+    this.locations.forEach((location: any) => {
+      if (location !== selectedLocation) {
+        location.expanded = false; // Close all others
+      }
+    });
+  
+    selectedLocation.expanded = !selectedLocation.expanded; // Toggle selected one
+  }
+  
+  clearSelection() {
+    this.selectedSubregions = {}; // Reset all selections
+    this.searchQuery = ''; // Clear search if needed
+  }
+  
+  
+  // Perform search action
+  querySearch() {
+    console.log("Searching for:", this.searchQuery);
+
+    console.log(this.selectedSubregions)
   }
   
   isMenuOpen = false;

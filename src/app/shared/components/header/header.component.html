@@ -18,35 +18,66 @@
         <div class="logo">AKSIYONA</div>
         <div class="search-container">
           <div class="search-bar">
-              <input type="text" placeholder="Search for deals" [(ngModel)]="searchQuery" (focus)="showDropdown = true" (input)="filterLocations()">
-              <button class="location-btn" (click)="toggleDropdown()">
-                  {{ selectedLocation || 'Select Location' }}
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="dropdown-icon">
-                      <path stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" d="m2.5 7.5 10 10 10-10"></path>
-                  </svg>
-              </button>
-              <button class="search-button" (click)="search(searchQuery)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" color="white">
-                      <path d="M18.8083 17.8647L13.4011 12.4565C14.4012 11.2428 15.0013 9.68908 15.0013 8.00194C15.0013 4.14087 11.861 1 8.00064 1C4.14029 1 1 4.14087 1 8.00194C1 11.863 4.14029 15.0039 8.00064 15.0039C9.69412 15.0039 11.2409 14.4037 12.4544 13.3968L17.8615 18.8049C18.1216 19.065 18.5416 19.065 18.8016 18.8049C19.0616 18.5449 19.0683 18.1248 18.8083 17.8647ZM2.33345 8.00194C2.33345 4.87441 4.87369 2.3337 8.00064 2.3337C11.1276 2.3337 13.6678 4.87441 13.6678 8.00194C13.6678 11.1295 11.1276 13.6702 8.00064 13.6702C4.87369 13.6702 2.33345 11.1295 2.33345 8.00194Z" fill="currentColor"></path>
-                  </svg>
-              </button>
+            <!-- Search Input -->
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Search for deals" 
+              [(ngModel)]="searchQuery"
+            >
+            <!-- Location Selection Button -->
+            <button class="location-btn" (click)="toggleDropdown($event)">
+              {{ getTruncatedLocation() }}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="dropdown-icon">
+                <path stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" d="m2.5 7.5 10 10 10-10"></path>
+              </svg>
+            </button>
+        
+            <!-- Search Button -->
+            <button class="search-button" (click)="querySearch()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" color="white">
+                <path d="M18.8083 17.8647L13.4011 12.4565C14.4012 11.2428 15.0013 9.68908 15.0013 8.00194C15.0013 4.14087 11.861 1 8.00064 1C4.14029 1 1 4.14087 1 8.00194C1 11.863 4.14029 15.0039 8.00064 15.0039C9.69412 15.0039 11.2409 14.4037 12.4544 13.3968L17.8615 18.8049C18.1216 19.065 18.5416 19.065 18.8016 18.8049C19.0616 18.5449 19.0683 18.1248 18.8083 17.8647ZM2.33345 8.00194C2.33345 4.87441 4.87369 2.3337 8.00064 2.3337C11.1276 2.3337 13.6678 4.87441 13.6678 8.00194C13.6678 11.1295 11.1276 13.6702 8.00064 13.6702C4.87369 13.6702 2.33345 11.1295 2.33345 8.00194Z" fill="currentColor"></path>
+              </svg>
+            </button>
           </div>
-      
-          <!-- Dropdown Menu -->
-          <div class="dropdown-menu" *ngIf="showDropdown">
-              <input type="text" class="dropdown-search" placeholder="Search locations..." [(ngModel)]="searchQuery" (input)="filterLocations()">
-      
-              <div class="location-item" (click)="setCurrentLocation()">
-                  <span>📍 Set Current Location</span>
+        
+          <div class="dropdown-menu" *ngIf="showDropdown" (click)="$event.stopPropagation()">
+            <button class="clear-btn" (click)="clearSelection()">Clear</button>
+            <button class="close-btn" (click)="closeRegionsMenu()">&times;</button> <!-- X Button -->
+        
+            <div *ngFor="let location of locations">
+              <!-- Region Selection -->
+              <div 
+              class="region-item" 
+              [class.active]="location.expanded"
+              (click)="toggleLocation(location)"
+            >
+              <span class="region-name">{{ location.region }}</span>
+              <div class="arrow-large" [ngClass]="{'rotated-large': location.expanded}" (click)="$event.stopPropagation(); toggleLocation(location)">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="black" stroke-width="2"></path>
+                </svg>
               </div>
-      
-              <div *ngFor="let location of filteredLocations" class="location-item" (click)="selectLocation(location)">
-                  {{ location }}
+            </div>
+            
+              <!-- Subregion Selection -->
+              <div *ngIf="location.expanded" class="subregion-container">
+                <label *ngFor="let subregion of location.subregions">
+                  <input 
+                    type="checkbox" 
+                    [checked]="isSubregionSelected(location.region, subregion)" 
+                    (change)="selectSubregion(location.region, subregion)"
+                  >
+                  {{ subregion }}
+                </label>
               </div>
+            </div>
           </div>
-      </div>             
+        </div>
+        
+              
         <div class="header-icons">
-            <span class="heart-icon"> 
+            <span class="heart-icon" (click)="hertIconClicked()"> 
               <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" fill="none" viewBox="0 0 24 25">
                   <path stroke="currentColor" d="m11.58 4.3.42.657.42-.656c.22-.343.474-.668.765-.97a5.89 5.89 0 0 1 8.538 0c2.37 2.452 2.37 6.434 0 8.886L12 22.28 2.277 12.217c-2.37-2.452-2.37-6.434 0-8.886a5.89 5.89 0 0 1 8.538 0c.29.3.544.627.764.97Z"/>
                 </svg>                  
