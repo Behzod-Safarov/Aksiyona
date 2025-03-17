@@ -498,11 +498,41 @@
     transition: color 0.3s ease;
 }
 
+.heart-icon,
+.cart-icon {
+    font-size: 25px;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out, color 0.2s ease-in-out;
+}
+
+.heart-icon:hover,
+.cart-icon:hover {
+    color: #007bff; /* Change color on hover */
+    transform: scale(1.1); /* Slight enlarge effect */
+}
+
+.heart-icon:active,
+.cart-icon:active {
+    transform: scale(0.9); /* Press effect */
+}
+
 /* Notifications */
 .notification {
     position: relative;
+    display: inline-block;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
 }
 
+.notification:hover {
+    transform: scale(1.1); /* Slight enlarge effect */
+}
+
+.notification:active {
+    transform: scale(0.95); /* Press effect */
+}
+
+/* Notification Badge */
 .notification sup {
     position: absolute;
     top: -5px;
@@ -512,7 +542,21 @@
     font-size: 11px;
     padding: 2px 6px;
     border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform 0.1s ease-in-out, background 0.2s ease-in-out;
 }
+
+.notification sup:hover {
+    background: darkred; /* Slightly darker red on hover */
+    transform: scale(1.2); /* Enlarge badge */
+}
+
+.notification sup:active {
+    transform: scale(0.85); /* Small press effect */
+}
+
+
 
 .sign-in-btn {
     background: #fff;
@@ -545,6 +589,177 @@
     width: 16px;
     height: 16px;
     margin-left: 4px; /* Slight spacing from text */
+}
+
+.notification sup {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: red;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.notify-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Ensures it's above everything */
+  overflow-y: auto; /* Enable scrolling */
+  padding: 10px;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 450px; /* Increased max width for better readability */
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(-10px);
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+/* Smooth modal fade-in effect */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.close-btn:hover {
+  color: red;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px; /* Limits height before scrolling */
+  overflow-y: auto;
+  padding-right: 5px; /* Prevents text from getting hidden */
+}
+
+/* Custom scrollbar */
+.notification-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 5px;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: #f8f9fa; /* Softer hover effect */
+}
+
+.notification-item:active {
+  transform: scale(0.98); /* Slight press effect */
+}
+
+.notification-item img {
+  width: 55px;
+  height: 55px;
+  border-radius: 5px;
+  margin-right: 12px;
+}
+
+.notification-text h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notification-text p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: gray;
+}
+
+.notification-text small {
+  color: darkgray;
+  font-size: 12px;
+}
+
+.learn-more-btn {
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 12px;
+  width: 100%;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+}
+
+.learn-more-btn:hover {
+  background: #0056b3;
+}
+
+.close-modal-btn {
+  background: black;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.close-modal-btn:hover {
+  background: #333; /* Lighter black */
+}
+
+.close-modal-btn:active {
+  transform: scale(0.95);
+}
+
+.close-modal-btn:focus {
+  outline: 2px solid white;
 }
 
 
@@ -584,6 +799,7 @@
         position: absolute;
         top: 40px;
         right: 40%;
+        cursor: pointer;
     }
 
     .heart-icon :hover {

@@ -1,11 +1,12 @@
 import { Component, HostListener  } from '@angular/core';
 import { CommonModule } from '@angular/common'; // ✅ Import qilish shart
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: true, // ✅ Standalone qilish
-  imports: [CommonModule, FormsModule], // ✅ CommonModule ni qo‘shish
+  imports: [CommonModule, FormsModule], 
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
@@ -72,17 +73,36 @@ export class HeaderComponent {
     { region: "Ohio", subregions: ["Cincinnati"], expanded: false },
     { region: "Uzb", subregions: ["anaqa"], expanded: false },
   ];
+  showAll = false;
+  notificationCount: number = 4;
+  showModal: boolean = false; // Controls modal visibility
+
+  notifications = [
+    { id: 1, title: 'Deal of the Day', description: 'Limited-time offer!', time: '21 hours ago', image: 'deal_of_the_day.jpg' },
+    { id: 2, title: 'Flash Sale!', description: 'Huge discounts on electronics!', time: '12 hours ago', image: 'flash_sale.jpg' },
+    { id: 3, title: 'New Arrival', description: 'Check out our latest collection.', time: '8 hours ago', image: 'new_arrival.jpg' },
+    { id: 4, title: 'Exclusive Offer', description: 'Special deals just for you.', time: '5 hours ago', image: 'exclusive_offer.jpg' },
+    { id: 5, title: 'Weekend Sale', description: 'Best prices this weekend!', time: '2 hours ago', image: 'weekend_sale.jpg' }
+  ];
+
 
   selectedRegion: string | null = null;
-  selectedSubregions: { [key: string]: string[] } = {}; // Stores selected subregions per region
+  selectedSubregions: { [key: string]: string[] } = {}; 
   showDropdown = false;
   searchQuery = "";
-
-  constructor() {
+  constructor(private router: Router) {
     // Initialize selectedSubregions object
     this.locations.forEach(location => {
       this.selectedSubregions[location.region] = [];
     });
+  }
+
+  toggleNotificationModal() {
+    this.showModal = !this.showModal;
+  }
+
+  onCartClick() {
+    console.log('Cart icon clicked!');
   }
 
   toggleDropdown(event: Event) {
@@ -153,14 +173,13 @@ export class HeaderComponent {
       }
     });
   
-    selectedLocation.expanded = !selectedLocation.expanded; // Toggle selected one
+    selectedLocation.expanded = !selectedLocation.expanded; 
   }
   
   clearSelection() {
-    this.selectedSubregions = {}; // Reset all selections
-    this.searchQuery = ''; // Clear search if needed
+    this.selectedSubregions = {};
+    this.searchQuery = ''; 
   }
-  
   
   // Perform search action
   querySearch() {
@@ -185,6 +204,7 @@ export class HeaderComponent {
     this.categories.forEach(cat => {
       if (cat !== category) cat.isOpen = false;
     });
+
     category.isOpen = !category.isOpen;
     console.log(`Selected: ${category.name}`);
   }
@@ -204,19 +224,27 @@ export class HeaderComponent {
   }
   
   
+  openNotification(notificationId: number) {
+    console.log(`Opening notification with ID: ${notificationId}`);
+  }
+  
+  toggleShowAll() {
+    this.showAll = true; // Expand to show all notifications
+  }
+  
   toggleSubcategory(selectedCategory: any) {
     this.categories.forEach(category => {
       if (category === selectedCategory) {
-        category.isOpen = !category.isOpen; // Toggle selected category
+        category.isOpen = !category.isOpen; 
       } else {
-        category.isOpen = false; // Close others
+        category.isOpen = false;
       }
     });
   }
+
   selectSubcategory(categoryName: string, subcategoryName: string, event: Event) {
-    event.stopPropagation(); // Prevents parent click event from firing
+    event.stopPropagation();
     console.log(`Category: ${categoryName}, Subcategory: ${subcategoryName}`);
-    // You can now handle selection (e.g., navigate, apply filters, etc.)
   }  
   
 }

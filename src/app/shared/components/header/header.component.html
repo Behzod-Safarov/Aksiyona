@@ -82,6 +82,7 @@
                   <path stroke="currentColor" d="m11.58 4.3.42.657.42-.656c.22-.343.474-.668.765-.97a5.89 5.89 0 0 1 8.538 0c2.37 2.452 2.37 6.434 0 8.886L12 22.28 2.277 12.217c-2.37-2.452-2.37-6.434 0-8.886a5.89 5.89 0 0 1 8.538 0c.29.3.544.627.764.97Z"/>
                 </svg>                  
             </span>
+            <div (click)="onCartClick()">
             <span class="cart-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_425_49151)">
@@ -96,14 +97,17 @@
                 </defs>
               </svg>
             </span>
-            <span class="notification">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" 
-                    d="M11.9975 1C10.0084 1 8.1007 1.79018 6.69418 3.1967C5.28766 4.60322 4.49748 6.51088 4.49748 8.5V13.497C4.46829 15.8767 3.80271 18.2053 2.5698 20.241L2.11011 21H2.99748H20.9975H21.8849L21.4252 20.241C20.1922 18.2053 19.5267 15.8767 19.4975 13.497V8.5C19.4975 6.51088 18.7073 4.60322 17.3008 3.1967C15.8943 1.79018 13.9866 1 11.9975 1ZM7.40129 3.90381C8.62027 2.68482 10.2736 2 11.9975 2C13.7214 2 15.3747 2.68482 16.5937 3.90381C17.8127 5.12279 18.4975 6.77609 18.4975 8.5V13.5H18.4974L18.4975 13.506C18.5248 15.7742 19.0899 17.9992 20.1411 20H3.85387C4.90503 17.9992 5.47013 15.7742 5.49744 13.506H5.49748V13.5V8.5C5.49748 6.77609 6.1823 5.12279 7.40129 3.90381ZM14.4975 23V22H9.49748V23H14.4975Z" 
-                    fill="currentColor">
-                    </path>
+            </div>
+            <!-- Notification Button -->
+            <span class="notification" (click)="toggleNotificationModal()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" 
+                d="M11.9975 1C10.0084 1 8.1007 1.79018 6.69418 3.1967C5.28766 4.60322 4.49748 6.51088 4.49748 8.5V13.497C4.46829 15.8767 3.80271 18.2053 2.5698 20.241L2.11011 21H2.99748H20.9975H21.8849L21.4252 20.241C20.1922 18.2053 19.5267 15.8767 19.4975 13.497V8.5C19.4975 6.51088 18.7073 4.60322 17.3008 3.1967C15.8943 1.79018 13.9866 1 11.9975 1ZM7.40129 3.90381C8.62027 2.68482 10.2736 2 11.9975 2C13.7214 2 15.3747 2.68482 16.5937 3.90381C17.8127 5.12279 18.4975 6.77609 18.4975 8.5V13.5H18.4974L18.4975 13.506C18.5248 15.7742 19.0899 17.9992 20.1411 20H3.85387C4.90503 17.9992 5.47013 15.7742 5.49744 13.506H5.49748V13.5V8.5C5.49748 6.77609 6.1823 5.12279 7.40129 3.90381ZM14.4975 23V22H9.49748V23H14.4975Z" 
+                fill="currentColor">
+                </path>
               </svg>
-              <sup>4</sup></span>
+              <sup *ngIf="notificationCount > 0">{{ notificationCount }}</sup>
+            </span>
               <button class="sign-in-btn">
                 <svg class="sign-in-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <path d="M12 11C14.4853 11 16.5 8.98528 16.5 6.5C16.5 4.01472 14.4853 2 12 2C9.51472 2 7.5 4.01472 7.5 6.5C7.5 8.98528 9.51472 11 12 11Z" 
@@ -370,6 +374,43 @@
   </ul>
 </div>
 
+
+<!-- Modal -->
+<div *ngIf="showModal" class="notify-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Notifications</h2>
+      <button class="close-btn" (click)="toggleNotificationModal()">✖</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="notification-list">
+        <div *ngFor="let notification of notifications.slice(0, showAll ? notifications.length : 4)" 
+             class="notification-item" 
+             (click)="openNotification(notification.id)">
+          <img [src]="notification.image" alt="Notification Image">
+          <div class="notification-text">
+            <h3>{{ notification.title }}</h3>
+            <p>{{ notification.description }}</p>
+            <small>{{ notification.time }}</small>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Learn More Button -->
+      <button *ngIf="notifications.length > 4 && !showAll" 
+              class="learn-more-btn" 
+              (click)="toggleShowAll()">
+        Learn More
+      </button>
+    </div>
+    
+
+    <div class="modal-footer">
+      <button class="close-modal-btn" (click)="toggleNotificationModal()">Close</button>
+    </div>
+  </div>
+</div>
 
 
 
