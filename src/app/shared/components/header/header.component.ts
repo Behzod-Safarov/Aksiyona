@@ -223,13 +223,17 @@ export class HeaderComponent {
     }
   }
   
-  
+  goToHome() {
+    this.router.navigate(['/']);
+  }
   openNotification(notificationId: number) {
-    console.log(`Opening notification with ID: ${notificationId}`);
+    this.router.navigate(['/deal', notificationId]);
+    // Close the modal
+    this.showModal = false;
   }
   
   toggleShowAll() {
-    this.showAll = true; // Expand to show all notifications
+    this.showAll = true; 
   }
   
   toggleSubcategory(selectedCategory: any) {

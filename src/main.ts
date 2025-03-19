@@ -2,12 +2,13 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideRouter, withComponentInputBinding, Routes } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { HomeComponent } from './app/features/home/home.component';
+import { DealDetailsComponent } from './app/features/deals/pages/deal-details/deal-details.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'deals', pathMatch: 'full' }, // Explicitly set pathMatch
-  { path: 'auth', loadChildren: () => import('./app/features/auth/auth.routes').then(m => m.routes) },
-  { path: 'deals', loadChildren: () => import('./app/features/deals/deals.routes').then(m => m.routes) },
-  { path: '**', redirectTo: 'deals' }
+  { path: '', component: HomeComponent },
+  { path: 'deal/:id', component: DealDetailsComponent },
+  { path: '**', redirectTo: '' } 
 ];
 
 bootstrapApplication(AppComponent, {

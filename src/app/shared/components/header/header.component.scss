@@ -41,7 +41,7 @@
   
     .category-menu {
         position: absolute;
-        top: 120px; /* Distance from top */
+        top: 100px; /* Distance from top */
         left: 0;
         width: 100%; /* Full width */
         background: white; /* Ensure background covers content */
@@ -273,15 +273,24 @@
     align-items: center;
     padding: 20px;
     background: white;
+    z-index: 1000;
 }
 
 /* Logo */
 .logo {
-    padding-left: 180px;
-    font-size: 28px;
-    font-weight: bold;
-    color: #00b200;
+  padding-left: 180px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #00b200;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
+
+.logo:hover {
+  color: #007f00;
+  transform: scale(1.1); /* Slightly enlarges the logo */
+}
+
 .search-container {
   position: relative;
   width: 100%;

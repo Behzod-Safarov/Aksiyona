@@ -1,0 +1,108 @@
+<div class="container" *ngIf="deal; else noDeal">
+    <div class="deal-header">
+      <h1>{{ deal.title }}</h1>
+      <p class="category">{{ deal.category }}</p>
+    </div>
+  
+    <div class="deal-content">
+      <div class="image-section">
+        <img [src]="selectedImage" alt="Selected Deal Image" class="main-image" />
+        <div class="thumbnails">
+          <img
+            *ngFor="let image of deal.images"
+            [src]="image"
+            [class.selected]="image === selectedImage"
+            (click)="selectImage(image)"
+            alt="Thumbnail"
+          />
+        </div>
+      </div>
+  
+      <div class="details-section">
+        <div class="pricing">
+          <span class="new-price">{{ deal.price | currency:'UZS':'symbol':'1.0-0' }}</span>
+          <span class="old-price">{{ deal.oldPrice | currency:'UZS':'symbol':'1.0-0' }}</span>
+          <span class="discount">-{{ deal.discount }}%</span>
+        </div>
+        <p class="rating">
+          <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= deal.rating">⭐</span>
+          {{ deal.rating }} ({{ deal.reviewsCount | number }} reviews)
+        </p>
+        <p class="stock" [class.low]="deal.stock <= 5">{{ deal.stock }} in stock</p>
+        <p class="countdown" [class.expired]="timeLeft === 'Expired'">Time Left: {{ timeLeft }}</p>
+        <p class="seller">Sold by: <strong>{{ deal.seller }}</strong></p>
+        <p class="description">{{ deal.description }}</p>
+        <button class="buy-now" [disabled]="deal.stock === 0 || timeLeft === 'Expired'">Buy Now</button>
+      </div>
+    </div>
+  
+    <!-- Rating Submission -->
+    <div class="rating-section">
+      <h3>Rate this Deal</h3>
+      <div class="star-rating">
+        <span
+          *ngFor="let star of [1, 2, 3, 4, 5]"
+          [class.filled]="star <= (previewRating || userRating)"
+          (click)="setUserRating(star)"
+          (mouseover)="previewRatingFunction(star)"
+          (mouseout)="resetPreview()"
+        >⭐</span>
+      </div>
+      <div class="rating-display" *ngIf="userRating > 0">
+        <span class="rating-badge">{{ userRating }}</span>
+        <span class="rating-text">Your Rating</span>
+      </div>
+      <button class="submit-rating" (click)="submitRating()" [disabled]="userRating === 0">Submit Rating</button>
+    </div>
+  
+    <!-- Comments Section -->
+    <div class="comments-section">
+      <h3>Comments ({{ deal.comments?.length || 0 }})</h3>
+      <div class="comments-list" *ngIf="deal.comments?.length; else noComments">
+        <div class="comment" *ngFor="let comment of deal.comments">
+          <p class="comment-user">{{ comment.user }} <span class="comment-date">{{ comment.date | date:'short' }}</span></p>
+          <p class="comment-text">{{ comment.text }}</p>
+        </div>
+      </div>
+      <ng-template #noComments>
+        <p class="no-comments">No comments yet. Be the first to comment!</p>
+      </ng-template>
+  
+      <div class="comment-form">
+        <textarea [(ngModel)]="newComment" placeholder="Add your comment..." rows="3"></textarea>
+        <button (click)="addComment()" [disabled]="!newComment.trim()">Post Comment</button>
+      </div>
+    </div>
+  
+    <!-- Recommended Deals Section -->
+    <div class="recommended-deals-section">
+      <h3>Recommended Deals</h3>
+      <div class="recommended-deals-list" *ngIf="recommendedDeals.length > 0; else noRecommended">
+        <div class="recommended-deal" *ngFor="let recDeal of recommendedDeals">
+          <img [src]="recDeal.images[0]" alt="{{ recDeal.title }}" class="deal-image" />
+          <div class="deal-info">
+            <h4>{{ recDeal.title }}</h4>
+            <div class="pricing">
+              <span class="new-price">{{ recDeal.price | currency:'UZS':'symbol':'1.0-0' }}</span>
+              <span class="old-price">{{ recDeal.oldPrice | currency:'UZS':'symbol':'1.0-0' }}</span>
+              <span class="discount">-{{ recDeal.discount }}%</span>
+            </div>
+            <p class="rating">
+              <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= recDeal.rating">⭐</span>
+              {{ recDeal.rating }} ({{ recDeal.reviewsCount | number }} reviews)
+            </p>
+            <button class="view-deal" (click)="viewDeal(recDeal)">View Deal</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noRecommended>
+        <p class="no-recommended">No recommended deals available.</p>
+      </ng-template>
+    </div>
+  </div>
+  
+  <ng-template #noDeal>
+    <div class="container">
+      <p class="no-deal">No deal found for ID: {{ dealId }}</p>
+    </div>
+  </ng-template>
