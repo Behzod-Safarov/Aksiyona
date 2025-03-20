@@ -73,10 +73,10 @@ export class HeaderComponent {
     { region: "Ohio", subregions: ["Cincinnati"], expanded: false },
     { region: "Uzb", subregions: ["anaqa"], expanded: false },
   ];
+
   showAll = false;
   notificationCount: number = 4;
-  showModal: boolean = false; // Controls modal visibility
-
+  showModal: boolean = false; 
   notifications = [
     { id: 1, title: 'Deal of the Day', description: 'Limited-time offer!', time: '21 hours ago', image: 'deal_of_the_day.jpg' },
     { id: 2, title: 'Flash Sale!', description: 'Huge discounts on electronics!', time: '12 hours ago', image: 'flash_sale.jpg' },
@@ -85,11 +85,11 @@ export class HeaderComponent {
     { id: 5, title: 'Weekend Sale', description: 'Best prices this weekend!', time: '2 hours ago', image: 'weekend_sale.jpg' }
   ];
 
-
   selectedRegion: string | null = null;
   selectedSubregions: { [key: string]: string[] } = {}; 
   showDropdown = false;
   searchQuery = "";
+
   constructor(private router: Router) {
     // Initialize selectedSubregions object
     this.locations.forEach(location => {
@@ -122,7 +122,6 @@ export class HeaderComponent {
     }
   }
 
-
   closeRegionsMenu() {
     this.showDropdown = false;
   }
@@ -133,7 +132,7 @@ export class HeaderComponent {
   // Select/deselect subregions and log the selection
   selectSubregion(region: string, subregion: string) {
     if (!this.selectedSubregions[region]) {
-      this.selectedSubregions[region] = []; // Ensure array exists before accessing it
+      this.selectedSubregions[region] = []; 
     }
   
     if (this.selectedSubregions[region].includes(subregion)) {
@@ -183,9 +182,9 @@ export class HeaderComponent {
   
   // Perform search action
   querySearch() {
-    console.log("Searching for:", this.searchQuery);
+    console.log("Searching for: ", this.searchQuery);
 
-    console.log(this.selectedSubregions)
+    console.log(this.selectedSubregions);
   }
   
   isMenuOpen = false;
@@ -201,9 +200,9 @@ export class HeaderComponent {
   }
 
   toggleSubcategoryLarge(category: any) {
-    this.categories.forEach(cat => {
-      if (cat !== category) cat.isOpen = false;
-    });
+      this.categories.forEach(cat => {
+        if (cat !== category) cat.isOpen = false;
+  });
 
     category.isOpen = !category.isOpen;
     console.log(`Selected: ${category.name}`);

@@ -48,7 +48,6 @@
               </div>
             </div>
             
-              <!-- Subregion Selection -->
               <div *ngIf="location.expanded" class="subregion-container">
                 <label *ngFor="let subregion of location.subregions">
                   <input 
@@ -63,12 +62,10 @@
           </div>
         </div>
         
-              
         <div class="header-icons">
             <span class="heart-icon" (click)="hertIconClicked()"> 
               <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" fill="none" viewBox="0 0 24 25">
                   <path stroke="currentColor" d="m11.58 4.3.42.657.42-.656c.22-.343.474-.668.765-.97a5.89 5.89 0 0 1 8.538 0c2.37 2.452 2.37 6.434 0 8.886L12 22.28 2.277 12.217c-2.37-2.452-2.37-6.434 0-8.886a5.89 5.89 0 0 1 8.538 0c.29.3.544.627.764.97Z"/>
-              
                 </svg>                  
             </span>
             <div (click)="onCartClick()">

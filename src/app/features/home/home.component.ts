@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 interface Deal {
   id: number;
@@ -121,7 +122,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private countdownIntervals: any[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private apiService: ApiService) {}
 
   ngOnInit(): void {
     this.loadLikedState();
