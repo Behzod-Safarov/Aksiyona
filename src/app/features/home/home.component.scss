@@ -12,6 +12,41 @@
     gap: 1.5rem;
   }
   
+  /* home.component.scss */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #e63946; /* Match heart icon color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading .card-content {
+  text-align: center;
+}
+
+.error .card-content {
+  text-align: center;
+  color: #e63946; /* Match heart icon color for consistency */
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
   /* Larger screens (e.g., desktops) can go to 3 or 4 columns */
   @media (min-width: 1024px) {
     .grid {

@@ -3,12 +3,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { ApiService } from '../../../../services/api.service';
 
 interface Comment {
   id: number;
-  user: string;
+  username: string;
   text: string;
-  date: Date;
+  createdAt: Date;
 }
 
 interface Deal {
@@ -17,15 +18,14 @@ interface Deal {
   price: number;
   oldPrice: number;
   discount: number;
-  reviewsCount: number;
+  reviews: number;
   rating: number;
-  images: string[];
-  seller: string;
+  images: string[]; // Updated to array to match template expectation
   description: string;
   category: string;
   stock: number;
   expiryDate: Date;
-  comments?: Comment[];
+  comments: Comment[];
 }
 
 @Component({
@@ -47,7 +47,11 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   private routeSub: Subscription | undefined;
   private countdownInterval: any;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private apiService: ApiService
+  ) {}
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe(params => {
@@ -56,8 +60,6 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       if (this.dealId) {
         this.fetchDealDetails(Number(this.dealId));
         this.fetchRecommendedDeals();
-        this.startCountdown();
-        // Scroll to top after route change
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
@@ -73,104 +75,73 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   }
 
   fetchDealDetails(id: number): void {
-    const mockDeals: Deal[] = [
-      {
-        id: 1,
-        title: "Qulay hazm qilish uchun sut aralashmasi Kabrita 2 Gold, 400 gr",
-        price: 258900,
-        oldPrice: 639000,
-        discount: 59,
-        reviewsCount: 71,
-        rating: 4.7,
-        images: ["reklama.jpg", "reklama2.jpg", "reklama.jpg", "reklama2.jpg"],
-        seller: "Kabrita",
-        description:
-          "Gollandiyada dehqonchilik an'analari va ko’p yillik ishlab chiqarish tajribasi tufayli...",
-        category: "Baby Products",
-        stock: 15,
-        expiryDate: new Date('2025-03-22T12:00:00'),
-        comments: [
-          { id: 1, user: "Ali", text: "Great product!", date: new Date('2025-03-18') },
-          { id: 2, user: "Sitora", text: "Worth the price!", date: new Date('2025-03-19') }
-        ]
+    this.apiService.getDeal(id).subscribe({
+      next: (dealData) => {
+        const expiryDate = dealData.ExpiryDate ? new Date(dealData.ExpiryDate) : new Date();
+        this.deal = {
+          id: dealData.Id ?? 0,
+          title: dealData.Title ?? 'Untitled Deal',
+          price: dealData.Price ?? 0,
+          oldPrice: dealData.OldPrice ?? 0,
+          discount: dealData.Discount ?? 0,
+          reviews: dealData.Reviews ?? 0,
+          rating: dealData.Rating ?? 0,
+          images: dealData.Image ? [dealData.Image] : ['placeholder.jpg'], // Convert single Image to array
+          description: dealData.Description || 'No description available',
+          category: dealData.Category ?? 'Unknown',
+          stock: dealData.Stock ?? 0,
+          expiryDate: expiryDate,
+          comments: dealData.Comments?.map((c: any) => ({
+            id: c.Id ?? 0,
+            username: c.Username ?? 'Anonymous',
+            text: c.Text ?? '',
+            createdAt: c.CreatedAt ? new Date(c.CreatedAt) : new Date()
+          })) ?? []
+        };
+        this.selectedImage = this.deal.images[0] || 'placeholder.jpg';
+        this.startCountdown();
+        console.log("Deal Data from API:", this.deal);
       },
-      {
-        id: 2,
-        title: "Kabrita 3 Gold Baby Formula, 400 gr",
-        price: 269000,
-        oldPrice: 650000,
-        discount: 58,
-        reviewsCount: 45,
-        rating: 4.5,
-        images: ["reklama.jpg"],
-        seller: "Kabrita",
-        description: "Perfect for growing toddlers with easy digestion.",
-        category: "Baby Products",
-        stock: 20,
-        expiryDate: new Date('2025-04-01T12:00:00')
-      },
-      {
-        id: 3,
-        title: "Organic Baby Diapers, Pack of 50",
-        price: 150000,
-        oldPrice: 200000,
-        discount: 25,
-        reviewsCount: 32,
-        rating: 4.8,
-        images: ["reklama2.jpg"],
-        seller: "EcoBaby",
-        description: "Soft and eco-friendly diapers for your baby.",
-        category: "Baby Products",
-        stock: 10,
-        expiryDate: new Date('2025-05-15T12:00:00')
+      error: (err) => {
+        console.error("Error fetching deal details:", err);
+        this.deal = undefined;
       }
-    ];
-
-    this.deal = mockDeals.find(d => d.id === id);
-    if (this.deal?.images.length) {
-      this.selectedImage = this.deal.images[0];
-    } else {
-      this.selectedImage = '';
-    }
-    console.log("Deal Data:", this.deal);
+    });
   }
 
   fetchRecommendedDeals(): void {
-    const mockRecommendedDeals: Deal[] = [
-      {
-        id: 2,
-        title: "Kabrita 3 Gold Baby Formula, 400 gr",
-        price: 269000,
-        oldPrice: 650000,
-        discount: 58,
-        reviewsCount: 45,
-        rating: 4.5,
-        images: ["reklama.jpg"],
-        seller: "Kabrita",
-        description: "Perfect for growing toddlers with easy digestion.",
-        category: "Baby Products",
-        stock: 20,
-        expiryDate: new Date('2025-04-01T12:00:00')
+    this.apiService.getDeals().subscribe({
+      next: (deals) => {
+        this.recommendedDeals = deals
+          .filter((d: any) => d.Id !== Number(this.dealId))
+          .slice(0, 2)
+          .map((d: any) => ({
+            id: d.Id ?? 0,
+            title: d.Title ?? 'Untitled Deal',
+            price: d.Price ?? 0,
+            oldPrice: d.OldPrice ?? 0,
+            discount: d.Discount ?? 0,
+            reviews: d.Reviews ?? 0,
+            rating: d.Rating ?? 0,
+            images: d.Image ? [d.Image] : ['placeholder.jpg'],
+            description: d.Description || 'No description available',
+            category: d.Category ?? 'Unknown',
+            stock: d.Stock ?? 0,
+            expiryDate: d.ExpiryDate ? new Date(d.ExpiryDate) : new Date(),
+            comments: d.Comments?.map((c: any) => ({
+              id: c.Id ?? 0,
+              username: c.Username ?? 'Anonymous',
+              text: c.Text ?? '',
+              createdAt: c.CreatedAt ? new Date(c.CreatedAt) : new Date()
+            })) ?? []
+          }));
+        console.log("Recommended Deals from API:", this.recommendedDeals);
       },
-      {
-        id: 3,
-        title: "Organic Baby Diapers, Pack of 50",
-        price: 150000,
-        oldPrice: 200000,
-        discount: 25,
-        reviewsCount: 32,
-        rating: 4.8,
-        images: ["reklama2.jpg"],
-        seller: "EcoBaby",
-        description: "Soft and eco-friendly diapers for your baby.",
-        category: "Baby Products",
-        stock: 10,
-        expiryDate: new Date('2025-05-15T12:00:00')
+      error: (err) => {
+        console.error("Error fetching recommended deals:", err);
+        this.recommendedDeals = [];
       }
-    ];
-
-    this.recommendedDeals = mockRecommendedDeals.filter(d => d.id !== Number(this.dealId));
-    console.log("Recommended Deals:", this.recommendedDeals);
+    });
   }
 
   selectImage(image: string): void {
@@ -178,7 +149,10 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   }
 
   startCountdown(): void {
-    if (!this.deal?.expiryDate) return;
+    if (!this.deal?.expiryDate || isNaN(this.deal.expiryDate.getTime())) {
+      this.timeLeft = 'Invalid Date';
+      return;
+    }
 
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
@@ -204,14 +178,29 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
 
   addComment(): void {
     if (this.newComment.trim() && this.deal) {
-      const comment: Comment = {
-        id: (this.deal.comments?.length || 0) + 1,
-        user: "Anonymous",
-        text: this.newComment,
-        date: new Date()
+      const commentPayload = {
+        DealId: this.deal.id,
+        UserId: 1, // Placeholder: Replace with actual user ID from auth service
+        Text: this.newComment,
+        CreatedAt: new Date()
       };
-      this.deal.comments = [...(this.deal.comments || []), comment];
-      this.newComment = '';
+
+      this.apiService.addComment(commentPayload).subscribe({
+        next: (newComment) => {
+          const comment: Comment = {
+            id: newComment.Id ?? 0,
+            username: newComment.Username || 'Anonymous',
+            text: newComment.Text ?? '',
+            createdAt: newComment.CreatedAt ? new Date(newComment.CreatedAt) : new Date()
+          };
+          this.deal!.comments = [...(this.deal!.comments || []), comment];
+          this.newComment = '';
+          console.log("Comment added:", comment);
+        },
+        error: (err) => {
+          console.error("Error adding comment:", err);
+        }
+      });
     }
   }
 
@@ -233,11 +222,37 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
 
   submitRating(): void {
     if (this.userRating >= 1 && this.userRating <= 5 && this.deal) {
-      const newReviewsCount = this.deal.reviewsCount + 1;
-      const newRating = ((this.deal.rating * this.deal.reviewsCount) + this.userRating) / newReviewsCount;
+      const newReviewsCount = this.deal.reviews + 1;
+      const newRating = ((this.deal.rating * this.deal.reviews) + this.userRating) / newReviewsCount;
       this.deal.rating = Math.round(newRating * 10) / 10;
-      this.deal.reviewsCount = newReviewsCount;
-      console.log("Updated Deal Rating:", this.deal.rating, "Reviews:", this.deal.reviewsCount);
+      this.deal.reviews = newReviewsCount;
+      console.log("Updated Deal Rating:", this.deal.rating, "Reviews:", this.deal.reviews);
+
+      this.apiService.updateDeal(this.deal.id, {
+        Id: this.deal.id,
+        Rating: this.deal.rating,
+        Reviews: this.deal.reviews,
+        Title: this.deal.title,
+        Price: this.deal.price,
+        OldPrice: this.deal.oldPrice,
+        Discount: this.deal.discount,
+        Stock: this.deal.stock,
+        ExpiryDate: this.deal.expiryDate.toISOString(),
+        Category: this.deal.category,
+        Image: this.deal.images[0],
+        Comments: this.deal.comments.map(c => ({
+          Id: c.id,
+          Username: c.username,
+          Text: c.text,
+          CreatedAt: c.createdAt.toISOString(),
+          DealId: this.deal!.id,
+          UserId: 1 // Placeholder
+        }))
+      }).subscribe({
+        next: () => console.log("Rating updated on backend"),
+        error: (err) => console.error("Error updating rating:", err)
+      });
+
       this.userRating = 0;
       this.previewRating = 0;
     } else {

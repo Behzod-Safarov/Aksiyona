@@ -1,5 +1,27 @@
 <div class="container">
-    <div class="grid">
+  <div class="grid">
+    <!-- Loading State -->
+    <div class="card loading" *ngIf="loading" role="status" aria-live="polite">
+      <div class="image-wrapper">
+        <div class="spinner"></div>
+        <span class="visually-hidden">Loading deals...</span>
+      </div>
+      <div class="card-content">
+        <h3>Loading...</h3>
+        <p class="price">Fetching deals...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="card error" *ngIf="!loading && error" role="alert" aria-live="assertive">
+      <div class="card-content">
+        <h3>Oops!</h3>
+        <p>{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- Deals List -->
+    <ng-container *ngIf="!loading && !error">
       <div
         class="card"
         *ngFor="let deal of deals; trackBy: trackByDealId; let i = index"
@@ -21,14 +43,14 @@
           </p>
           <p class="rating">
             <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= deal.rating">★</span>
-            {{ deal.rating }} ({{ deal.reviews | number }} reviews)
+            {{ deal.rating.toFixed(1) }} ({{ deal.reviews | number }} reviews)
           </p>
           <p class="stock" [class.low]="deal.stock <= 10">
             {{ deal.stock }} left
           </p>
           <p class="time-left" [class.expired]="deal.timeLeft === 'Expired'">
-            ⏳ {{ deal.timeLeft !== 'Expired' ? 'Time left: ' + deal.timeLeft : '❌ Deal Expired' }}
-          </p>          
+            ⏳ {{ deal.timeLeft ? (deal.timeLeft !== 'Expired' ? 'Time left: ' + deal.timeLeft : '❌ Deal Expired') : 'Calculating...' }}
+          </p>
         </div>
         <svg
           class="heart-icon"
@@ -48,5 +70,6 @@
           />
         </svg>
       </div>
-    </div>
+    </ng-container>
   </div>
+</div>

@@ -1,32 +1,33 @@
+// src/app/services/api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'https://your-backend.com/api'; 
+  private apiBaseUrl = 'http://localhost:5251/api'; // Updated to your API URL
 
   constructor(private http: HttpClient) {}
 
-  // Generic GET request
-  get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.baseUrl}/${endpoint}`);
+  getDeals(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiBaseUrl}/deal`);
   }
 
-  // Generic POST request
-  post<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}/${endpoint}`, data);
+  getDeal(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiBaseUrl}/deal/${id}`);
   }
 
-  // Generic PUT request
-  put<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.put<T>(`${this.baseUrl}/${endpoint}`, data);
+  addComment(comment: any): Observable<any> {
+    return this.http.post<any>(`${this.apiBaseUrl}/comment`, comment);
   }
 
-  // Generic DELETE request
-  delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}/${endpoint}`);
+  updateDeal(id: number, deal: any): Observable<any> {
+    return this.http.put(`${this.apiBaseUrl}/deal/${id}`, deal);
+  }
+
+  toggleLike(dealId: number, liked: boolean): Observable<any> {
+    return this.http.put(`${this.apiBaseUrl}/deal/${dealId}`, { liked });
   }
 }

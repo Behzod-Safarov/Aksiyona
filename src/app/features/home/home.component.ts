@@ -27,110 +27,55 @@ interface Deal {
   imports: [CommonModule]
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  deals: Deal[] = [
-    {
-      id: 1,
-      image: 'reklama.jpg',
-      title: "Up to 50% Off a Sam’s Club Membership: Big Savings!",
-      price: 25,
-      oldPrice: 50,
-      discount: 50,
-      rating: 1.5,
-      reviews: 111982,
-      expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000 + 3 * 60 * 1000),
-      timeLeft: '',
-      liked: false,
-      category: 'Membership',
-      stock: 100
-    },
-    {
-      id: 2,
-      image: 'reklama.jpg',
-      title: "Revitalize Your Look with Dysport or Jeuveau Injections!",
-      price: 139.50,
-      oldPrice: 349,
-      discount: 60,
-      rating: 4.8,
-      reviews: 4183,
-      expiryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000 + 4 * 60 * 1000),
-      timeLeft: '',
-      liked: true,
-      category: 'Beauty',
-      stock: 50
-    },
-    {
-      id: 3,
-      image: 'reklama.jpg',
-      title: "Save up to 50% - 360 Chicago, SkyDeck, FlyOver & more!",
-      price: 79.80,
-      oldPrice: 84,
-      discount: 5,
-      rating: 4.5,
-      reviews: 23261,
-      expiryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 + 5 * 60 * 1000),
-      timeLeft: '',
-      liked: false,
-      category: 'Travel',
-      stock: 75
-    },
-    {
-      id: 4,
-      image: 'reklama.jpg',
-      title: "Up to 50% Off a Sam’s Club Membership: Big Savings!",
-      price: 25,
-      oldPrice: 50,
-      discount: 50,
-      rating: 4.3,
-      reviews: 111982,
-      expiryDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 5 * 60 * 60 * 1000 + 6 * 60 * 1000),
-      timeLeft: '',
-      liked: false,
-      category: 'Membership',
-      stock: 100
-    },
-    {
-      id: 5,
-      image: 'reklama.jpg',
-      title: "Revitalize Your Look with Dysport or Jeuveau Injections!",
-      price: 139.50,
-      oldPrice: 349,
-      discount: 60,
-      rating: 2.8,
-      reviews: 4183,
-      expiryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000 + 7 * 60 * 1000),
-      timeLeft: '',
-      liked: true,
-      category: 'Beauty',
-      stock: 50
-    },
-    {
-      id: 6,
-      image: 'reklama.jpg',
-      title: "Save up to 50% - 360 Chicago, SkyDeck, FlyOver & more!",
-      price: 79.80,
-      oldPrice: 84,
-      discount: 5,
-      rating: 2,
-      reviews: 23261,
-      expiryDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000 + 7 * 60 * 60 * 1000 + 8 * 60 * 1000),
-      timeLeft: '',
-      liked: false,
-      category: 'Travel',
-      stock: 75
-    }
-  ];
-
+  deals: Deal[] = [];
+  loading: boolean = true;
+  error: string | null = null;
   private countdownIntervals: any[] = [];
 
   constructor(private router: Router, private apiService: ApiService) {}
 
   ngOnInit(): void {
-    this.loadLikedState();
-    this.startCountdowns();
+    this.fetchDeals();
   }
 
   ngOnDestroy(): void {
     this.countdownIntervals.forEach(interval => clearInterval(interval));
+  }
+
+  fetchDeals(): void {
+    this.loading = true;
+    this.error = null;
+    this.apiService.getDeals().subscribe({
+      next: (deals) => {
+        this.deals = deals.map(deal => {
+          const expiryDate = deal.ExpiryDate ? new Date(deal.ExpiryDate) : new Date();
+          return {
+            id: deal.Id ?? 0,
+            image: deal.Image ?? 'placeholder.jpg',
+            title: deal.Title ?? 'Untitled Deal',
+            price: deal.Price ?? 0,
+            oldPrice: deal.OldPrice ?? 0,
+            discount: deal.Discount ?? 0,
+            rating: deal.Rating ?? 0,
+            reviews: deal.Reviews ?? 0,
+            expiryDate: expiryDate,
+            timeLeft: '',
+            liked: deal.Liked ?? false,
+            category: deal.Category ?? 'Unknown',
+            stock: deal.Stock ?? 0
+          };
+        }).filter(deal => !isNaN(deal.expiryDate.getTime())); // Filter out invalid dates
+        this.startCountdowns();
+        this.loading = false;
+        console.log("Deals fetched from API:", this.deals);
+      },
+      error: (err) => {
+        console.error("Error fetching deals:", err);
+        this.error = "Failed to load deals. Please try again later.";
+        this.deals = [];
+        this.loading = false;
+      }
+    });
   }
 
   startCountdowns(): void {
@@ -138,7 +83,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const updateTimer = () => {
         const now = new Date();
         const timeDiff = deal.expiryDate.getTime() - now.getTime();
-        if (timeDiff <= 0) {
+        if (isNaN(timeDiff) || timeDiff <= 0) {
           this.deals[index].timeLeft = 'Expired';
           clearInterval(this.countdownIntervals[index]);
           return;
@@ -153,21 +98,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadLikedState(): void {
-    const likedDeals = JSON.parse(localStorage.getItem('likedDeals') || '{}');
-    this.deals.forEach(deal => {
-      deal.liked = !!likedDeals[deal.id];
-    });
-  }
-
-  saveLikedState(): void {
-    const likedDeals = this.deals.reduce((acc, deal) => {
-      acc[deal.id] = deal.liked;
-      return acc;
-    }, {} as { [key: number]: boolean });
-    localStorage.setItem('likedDeals', JSON.stringify(likedDeals));
-  }
-
   openDeal(deal: Deal): void {
     this.router.navigate(['/deal', deal.id]).then(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -176,8 +106,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   toggleLike(event: Event, index: number): void {
     event.stopPropagation();
-    this.deals[index].liked = !this.deals[index].liked;
-    this.saveLikedState();
+    const deal = this.deals[index];
+    deal.liked = !deal.liked;
+
+    this.apiService.toggleLike(deal.id, deal.liked).subscribe({
+      next: () => {
+        console.log(`Deal ${deal.id} liked state updated to ${deal.liked} on backend`);
+      },
+      error: (err) => {
+        console.error(`Error updating liked state for deal ${deal.id}:`, err);
+        deal.liked = !deal.liked;
+      }
+    });
   }
 
   trackByDealId(index: number, deal: Deal): number {
