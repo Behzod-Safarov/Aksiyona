@@ -2,6 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+import { LikedDto } from '../../core/models/liked-dto';
+import { DealDto } from '../../core/models/deal-dto';
+
 
 interface Deal {
   id: number;
@@ -17,6 +21,7 @@ interface Deal {
   liked: boolean;
   category: string;
   stock: number;
+  likeId?: number;
 }
 
 @Component({
@@ -31,11 +36,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   error: string | null = null;
   private countdownIntervals: any[] = [];
+  userId: number | null = null;
 
-  constructor(private router: Router, private apiService: ApiService) {}
-
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+  
   ngOnInit(): void {
-    this.fetchDeals();
+    // Subscribe to userId changes from AuthService
+    this.authService.userId$.subscribe(userId => {
+      this.userId = userId;
+      this.fetchDeals();
+    });
   }
 
   ngOnDestroy(): void {
@@ -46,9 +60,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     this.apiService.getDeals().subscribe({
-      next: (deals) => {
-        this.deals = deals.map(deal => {
-          const expiryDate = deal.ExpiryDate ? new Date(deal.ExpiryDate) : new Date();
+      next: (deals: DealDto[]) => {
+        this.deals = deals.map((deal: DealDto) => {
+          const expiryDate = deal.ExpiryDate ? new Date(deal.ExpiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000); // Default to 1 day from now
+          if (isNaN(expiryDate.getTime())) {
+            console.warn(`Invalid ExpiryDate for deal ${deal.Id}, using default date`);
+            expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
+          }
           return {
             id: deal.Id ?? 0,
             image: deal.Image ?? 'placeholder.jpg',
@@ -60,14 +78,41 @@ export class HomeComponent implements OnInit, OnDestroy {
             reviews: deal.Reviews ?? 0,
             expiryDate: expiryDate,
             timeLeft: '',
-            liked: deal.Liked ?? false,
+            liked: false, // Will be set after fetching liked deals
             category: deal.Category ?? 'Unknown',
-            stock: deal.Stock ?? 0
-          };
-        }).filter(deal => !isNaN(deal.expiryDate.getTime())); // Filter out invalid dates
-        this.startCountdowns();
-        this.loading = false;
-        console.log("Deals fetched from API:", this.deals);
+            stock: deal.Stock ?? 0,
+            likeId: undefined
+          } as Deal;
+        }).filter((deal: Deal) => !isNaN(deal.expiryDate.getTime()));
+  
+        // Fetch user’s liked deals to set the liked state (only if logged in)
+        if (this.userId) {
+          this.apiService.getUserLikedDeals(this.userId).subscribe({
+            next: (likedDeals: LikedDto[]) => {
+              this.deals = this.deals.map((deal: Deal) => {
+                const likedDeal = likedDeals.find(liked => liked.DealId === deal.id);
+                return {
+                  ...deal,
+                  liked: !!likedDeal,
+                  likeId: likedDeal ? likedDeal.Id : undefined
+                };
+              });
+              this.startCountdowns();
+              this.loading = false;
+              console.log("Deals fetched from API:", this.deals);
+            },
+            error: (err) => {
+              console.error("Error fetching liked deals:", err);
+              this.error = "Failed to load liked deals. Some features may not work as expected.";
+              this.startCountdowns();
+              this.loading = false;
+            }
+          });
+        } else {
+          this.startCountdowns();
+          this.loading = false;
+          console.log("Deals fetched from API (no user logged in):", this.deals);
+        }
       },
       error: (err) => {
         console.error("Error fetching deals:", err);
@@ -106,21 +151,53 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   toggleLike(event: Event, index: number): void {
     event.stopPropagation();
+
+    // Check if user is authenticated
+    if (!this.userId) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     const deal = this.deals[index];
+    const wasLiked = deal.liked;
     deal.liked = !deal.liked;
 
-    this.apiService.toggleLike(deal.id, deal.liked).subscribe({
-      next: () => {
-        console.log(`Deal ${deal.id} liked state updated to ${deal.liked} on backend`);
-      },
-      error: (err) => {
-        console.error(`Error updating liked state for deal ${deal.id}:`, err);
-        deal.liked = !deal.liked;
+    if (deal.liked) {
+      // Add a like
+      this.apiService.addLike({ userId: this.userId, dealId: deal.id }).subscribe({
+        next: (likedDto: LikedDto) => {
+          deal.likeId = likedDto.Id;
+          console.log(`Deal ${deal.id} liked by user ${this.userId}`);
+        },
+        error: (err) => {
+          console.error(`Error liking deal ${deal.id}:`, err);
+          deal.liked = wasLiked;
+          this.error = 'Failed to like the deal. Please try again.';
+        }
+      });
+    } else {
+      // Remove a like
+      if (deal.likeId) {
+        this.apiService.removeLike(deal.likeId).subscribe({
+          next: () => {
+            deal.likeId = undefined;
+            console.log(`Like removed for deal ${deal.id} by user ${this.userId}`);
+          },
+          error: (err) => {
+            console.error(`Error unliking deal ${deal.id}:`, err);
+            deal.liked = wasLiked;
+            this.error = 'Failed to unlike the deal. Please try again.';
+          }
+        });
       }
-    });
+    }
   }
 
   trackByDealId(index: number, deal: Deal): number {
     return deal.id;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.userId;
   }
 }

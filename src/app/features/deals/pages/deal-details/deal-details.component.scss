@@ -3,7 +3,7 @@
   top: 110px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 15px; /* Mobile-first, smaller padding */
+  padding: 15px;
 }
 
 .deal-header {
@@ -24,10 +24,10 @@
 
 .deal-content {
   display: flex;
-  flex-direction: column; /* Mobile-first, stack content */
+  flex-direction: column;
   gap: 20px;
   background: #fff;
-  padding: 15px; /* Mobile-first, reduced padding */
+  padding: 15px; 
   border-radius: 10px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
@@ -229,6 +229,7 @@
   }
 
   .submit-rating {
+    margin-left: 15px;
     margin-top: 10px;
     background: #28a745;
     color: white;
@@ -335,12 +336,12 @@
 
 .recommended-deals-section {
   margin-top: 20px;
-  padding: 15px; /* Mobile-first */
+  padding: 15px;
   background: #f9f9f9;
   border-radius: 10px;
 
   h3 {
-    font-size: clamp(16px, 4vw, 20px); /* Scales up to original 20px */
+    font-size: clamp(16px, 4vw, 20px);
     margin-bottom: 15px;
     color: #333;
   }
@@ -356,8 +357,8 @@
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: min(300px, 100%); /* Full width on mobile, 300px max on larger screens */
-    padding: 10px; /* Mobile-first */
+    width: min(300px, 100%);
+    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -378,34 +379,37 @@
     .deal-info {
       text-align: center;
       flex: 1;
+      width: 100%; /* Ensure it takes full width of parent */
+      padding: 0 5px; /* Add slight padding to prevent overflow at edges */
 
       h4 {
-        font-size: clamp(14px, 3vw, 16px); /* Scales up to original 16px */
+        font-size: clamp(14px, 3vw, 16px);
         font-weight: 600;
         color: #333;
         margin-bottom: 10px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        max-width: 100%; /* Ensure it doesn’t exceed container */
       }
 
       .pricing {
-        font-size: clamp(16px, 4vw, 18px); /* Scales up to original 18px */
+        font-size: clamp(16px, 4vw, 18px);
         margin-bottom: 10px;
 
         .new-price {
           color: #28a745;
         }
         .old-price {
-          font-size: clamp(12px, 3vw, 14px); /* Scales up to original 14px */
+          font-size: clamp(12px, 3vw, 14px);
         }
         .discount {
-          font-size: clamp(12px, 3vw, 14px); /* Scales up to original 14px */
+          font-size: clamp(12px, 3vw, 14px);
         }
       }
 
       .rating {
-        font-size: clamp(12px, 3vw, 14px); /* Scales up to original 14px */
+        font-size: clamp(12px, 3vw, 14px);
         margin-bottom: 10px;
       }
 
@@ -416,7 +420,7 @@
         border: none;
         border-radius: 5px;
         cursor: pointer;
-        font-size: clamp(12px, 3vw, 14px); /* Scales up to original 14px */
+        font-size: clamp(12px, 3vw, 14px);
         transition: background 0.3s ease;
 
         &:hover {

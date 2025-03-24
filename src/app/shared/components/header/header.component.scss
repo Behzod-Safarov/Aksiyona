@@ -567,7 +567,7 @@
 
 
 
-.sign-in-btn {
+.sign-in-btn, .sign-out-btn {
     background: #fff;
     border: 1px solid #ccc;
     padding: 8px 14px;
@@ -580,7 +580,7 @@
     transition: background 0.2s ease-in-out;
 }
 
-.sign-in-btn:hover {
+.sign-in-btn, .sign-out-btn:hover {
     background: #f0f0f0;
 }
 

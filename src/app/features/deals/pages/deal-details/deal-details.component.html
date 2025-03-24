@@ -48,18 +48,15 @@
         (click)="setUserRating(star)"
         (mouseover)="previewRatingFunction(star)"
         (mouseout)="resetPreview()"
-      >⭐</span>
+      >★</span>
     </div>
-    <div class="rating-display" *ngIf="userRating > 0">
-      <span class="rating-badge">{{ userRating }}</span>
-      <span class="rating-text">Your Rating</span>
-    </div>
+
     <button class="submit-rating" (click)="submitRating()" [disabled]="userRating === 0">Submit Rating</button>
   </div>
 
   <!-- Comments Section -->
   <div class="comments-section">
-    <h3>Comments ({{ deal.comments?.length || 0 }})</h3>
+    <h3>Comments ({{ deal.comments.length || 0 }})</h3>
     <div class="comments-list" *ngIf="deal.comments?.length; else noComments">
       <div class="comment" *ngFor="let comment of deal.comments">
         <p class="comment-user">{{ comment.username }} <span class="comment-date">{{ comment.createdAt | date:'short' }}</span></p>

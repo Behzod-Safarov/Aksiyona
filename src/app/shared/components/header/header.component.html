@@ -94,18 +94,31 @@
               </svg>
               <sup *ngIf="notificationCount > 0">{{ notificationCount }}</sup>
             </span>
-              <button class="sign-in-btn">
+            <div class="auth-buttons">
+              <button *ngIf="!isLoggedIn()" class="sign-in-btn" (click)="onSignInClick()">
                 <svg class="sign-in-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path d="M12 11C14.4853 11 16.5 8.98528 16.5 6.5C16.5 4.01472 14.4853 2 12 2C9.51472 2 7.5 4.01472 7.5 6.5C7.5 8.98528 9.51472 11 12 11Z" 
-                          stroke="currentColor" stroke-miterlimit="10" stroke-linecap="square"></path>
-                    <path d="M12 13C7.029 13 3 17.029 3 22H21C21 17.029 16.971 13 12 13Z" 
-                          stroke="currentColor" stroke-miterlimit="10" stroke-linecap="square"></path>
+                  <path d="M12 11C14.4853 11 16.5 8.98528 16.5 6.5C16.5 4.01472 14.4853 2 12 2C9.51472 2 7.5 4.01472 7.5 6.5C7.5 8.98528 9.51472 11 12 11Z" 
+                        stroke="currentColor" stroke-miterlimit="10" stroke-linecap="square"></path>
+                  <path d="M12 13C7.029 13 3 17.029 3 22H21C21 17.029 16.971 13 12 13Z" 
+                        stroke="currentColor" stroke-miterlimit="10" stroke-linecap="square"></path>
                 </svg>
                 <span>Sign In</span>
                 <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" d="m2.5 7.5 10 10 10-10"></path>
+                  <path stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" d="m2.5 7.5 10 10 10-10"></path>
                 </svg>
-            </button>
+              </button>
+            
+              <button *ngIf="isLoggedIn()" class="sign-out-btn" (click)="onSignOutClick()">
+                <svg class="sign-out-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Sign Out</span>
+                <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" d="m2.5 7.5 10 10 10-10"></path>
+                </svg>
+              </button>
+            </div>
                       
         </div>
     </div>
