@@ -48,7 +48,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Subscribe to userId changes from AuthService
     this.authService.userId$.subscribe(userId => {
       this.userId = userId;
+
       this.fetchDeals();
+      console.log('userId:', this.userId)
     });
   }
 
@@ -89,17 +91,25 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.userId) {
           this.apiService.getUserLikedDeals(this.userId).subscribe({
             next: (likedDeals: LikedDto[]) => {
+              console.log('Raw likedDeals from API:', likedDeals); // Log the raw response
+        
               this.deals = this.deals.map((deal: Deal) => {
-                const likedDeal = likedDeals.find(liked => liked.DealId === deal.id);
-                return {
+                const likedDeal = likedDeals.find(liked => liked.dealId === deal.id); // Fix property name
+                console.log(`Deal ${deal.id} - likedDeal:`, likedDeal);
+        
+                const updatedDeal = {
                   ...deal,
                   liked: !!likedDeal,
-                  likeId: likedDeal ? likedDeal.Id : undefined
+                  likeId: likedDeal?.Id
                 };
+        
+                console.log('Updated deal:', updatedDeal);
+                return updatedDeal;
               });
+              
               this.startCountdowns();
               this.loading = false;
-              console.log("Deals fetched from API:", this.deals);
+              console.log('Final deals array:', this.deals);
             },
             error: (err) => {
               console.error("Error fetching liked deals:", err);

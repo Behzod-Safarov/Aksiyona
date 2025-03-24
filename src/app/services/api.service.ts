@@ -42,7 +42,8 @@ export class ApiService {
   }
 
   getUserLikedDeals(userId: number): Observable<LikedDto[]> {
-    return this.http.get<LikedDto[]>(`${this.apiBaseUrl}/liked/user/${userId}`);
+    console.log('taking likedDtos: ',userId )
+    return this.http.get<LikedDto[]>(`${this.apiBaseUrl}/Liked/user/${userId}`);
   }
 
   addLike(liked: { userId: number; dealId: number }): Observable<LikedDto> {

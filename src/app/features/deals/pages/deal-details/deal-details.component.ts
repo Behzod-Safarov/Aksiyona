@@ -63,20 +63,24 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('Component initialized');
 
-    // Extract userId from JWT token
+    // Extract userId from JWT token if available (optional)
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         this.userId = payload.userId || null; // Adjust based on your JWT structure
+        console.log('User ID extracted from token:', this.userId);
       } catch (error) {
         console.error('Error decoding token:', error);
+        this.userId = null; // Explicitly set to null if token decoding fails
       }
+    } else {
+      console.log('No token found, user is not logged in');
     }
 
     this.routeSub = this.route.params.subscribe(params => {
       this.dealId = params['id'];
-      console.log("Deal ID from route:", this.dealId);
+      console.log('Deal ID from route:', this.dealId);
       if (this.dealId) {
         this.fetchDealDetails(Number(this.dealId));
         this.fetchRecommendedDeals();
@@ -118,10 +122,10 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   fetchDealDetails(id: number): void {
     this.apiService.getDeal(id).subscribe({
       next: (dealData: DealDto) => {
-        const expiryDate = dealData.ExpiryDate ? new Date(dealData.ExpiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000); // Default to 1 day from now
+        const expiryDate = dealData.ExpiryDate ? new Date(dealData.ExpiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
         if (isNaN(expiryDate.getTime())) {
           console.warn(`Invalid ExpiryDate for deal ${dealData.Id}, using default date`);
-          expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
+          expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000);
         }
         this.deal = {
           id: dealData.Id ?? 0,
@@ -146,36 +150,36 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
           likeId: undefined
         };
         this.selectedImage = this.deal.images[0] || 'placeholder.jpg';
-  
-        // Fetch user’s liked deals to set the liked state
+
+        // Fetch liked state only if user is logged in
         if (this.userId) {
           this.apiService.getUserLikedDeals(this.userId).subscribe({
             next: (likedDeals: LikedDto[]) => {
-              const likedDeal = likedDeals.find(liked => liked.DealId === this.deal!.id);
+              const likedDeal = likedDeals.find(liked => liked.dealId === this.deal!.id);
               if (this.deal) {
                 this.deal.liked = !!likedDeal;
                 this.deal.likeId = likedDeal ? likedDeal.Id : undefined;
               }
+              console.log('Deal liked state updated:', this.deal?.liked);
               this.startCountdown();
-              console.log("Deal Data from API:", this.deal);
             },
             error: (err) => {
-              console.error("Error fetching liked deals:", err);
+              console.error('Error fetching liked deals:', err);
               this.startCountdown();
             }
           });
         } else {
+          console.log('User not logged in, skipping liked deals fetch');
           this.startCountdown();
         }
       },
       error: (err) => {
-        console.error("Error fetching deal details:", err);
-        this.error = "Failed to load deal details. Please try again later.";
+        console.error('Error fetching deal details:', err);
+        this.error = 'Failed to load deal details. Please try again later.';
         this.deal = undefined;
       }
     });
   }
-
 
   fetchRecommendedDeals(): void {
     this.apiService.getDeals().subscribe({
@@ -184,10 +188,10 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
           .filter((d: DealDto) => d.Id !== Number(this.dealId))
           .slice(0, 2)
           .map((d: DealDto) => {
-            const expiryDate = d.ExpiryDate ? new Date(d.ExpiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000); // Default to 1 day from now
+            const expiryDate = d.ExpiryDate ? new Date(d.ExpiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
             if (isNaN(expiryDate.getTime())) {
               console.warn(`Invalid ExpiryDate for recommended deal ${d.Id}, using default date`);
-              expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
+              expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000);
             }
             return {
               id: d.Id ?? 0,
@@ -212,30 +216,31 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
               likeId: undefined
             };
           });
-  
-        // Fetch user’s liked deals to set the liked state for recommended deals
+
         if (this.userId) {
           this.apiService.getUserLikedDeals(this.userId).subscribe({
             next: (likedDeals: LikedDto[]) => {
               this.recommendedDeals = this.recommendedDeals.map(deal => {
-                const likedDeal = likedDeals.find(liked => liked.DealId === deal.id);
+                const likedDeal = likedDeals.find(liked => liked.dealId === deal.id);
                 return {
                   ...deal,
                   liked: !!likedDeal,
                   likeId: likedDeal ? likedDeal.Id : undefined
                 };
               });
-              console.log("Recommended Deals from API:", this.recommendedDeals);
+              console.log('Recommended Deals liked states updated:', this.recommendedDeals);
             },
             error: (err) => {
-              console.error("Error fetching liked deals for recommended deals:", err);
+              console.error('Error fetching liked deals for recommended deals:', err);
             }
           });
+        } else {
+          console.log('User not logged in, skipping liked states for recommended deals');
         }
       },
       error: (err) => {
-        console.error("Error fetching recommended deals:", err);
-        this.error = "Failed to load recommended deals. Please try again later.";
+        console.error('Error fetching recommended deals:', err);
+        this.error = 'Failed to load recommended deals. Please try again later.';
         this.recommendedDeals = [];
       }
     });
@@ -274,11 +279,17 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   }
 
   addComment(): void {
-    if (this.newComment.trim() && this.deal && this.userId) {
+    if (!this.userId) {
+      console.log('User not logged in, redirecting to login for commenting');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (this.newComment.trim() && this.deal) {
       const commentPayload = {
         dealId: this.deal.id,
         userId: this.userId,
-        username: 'Anonymous', // Add the username property
+        username: 'Anonymous',
         text: this.newComment,
         createdAt: new Date().toISOString()
       };
@@ -293,14 +304,12 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
           };
           this.deal!.comments = [...(this.deal!.comments || []), comment];
           this.newComment = '';
-          console.log("Comment added:", comment);
+          console.log('Comment added:', comment);
         },
         error: (err) => {
-          console.error("Error adding comment:", err);
+          console.error('Error adding comment:', err);
         }
       });
-    } else if (!this.userId) {
-      this.router.navigate(['/login']);
     }
   }
 
@@ -308,7 +317,8 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
     event.stopPropagation();
 
     if (!this.userId) {
-      this.router.navigate(['/login']);
+      console.log('User not logged in, like action skipped');
+      this.error = 'Please log in to like this deal.'; // Optional feedback
       return;
     }
 
@@ -318,7 +328,6 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
     this.deal.liked = !this.deal.liked;
 
     if (this.deal.liked) {
-      // Add a like
       this.apiService.addLike({ userId: this.userId, dealId: this.deal.id }).subscribe({
         next: (likedDto: LikedDto) => {
           this.deal!.likeId = likedDto.Id;
@@ -331,7 +340,6 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Remove a like
       if (this.deal.likeId) {
         this.apiService.removeLike(this.deal.likeId).subscribe({
           next: () => {
@@ -351,56 +359,61 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   setUserRating(rating: number): void {
     this.userRating = rating;
     this.previewRating = rating;
-    console.log("User Rating Set To:", this.userRating);
+    console.log('User Rating Set To:', this.userRating);
   }
 
   previewRatingFunction(rating: number): void {
     this.previewRating = rating;
-    console.log("Preview Rating:", this.previewRating);
+    console.log('Preview Rating:', this.previewRating);
   }
 
   resetPreview(): void {
     this.previewRating = this.userRating;
-    console.log("Preview Reset To:", this.previewRating);
+    console.log('Preview Reset To:', this.previewRating);
   }
 
   submitRating(): void {
+    if (!this.userId) {
+      console.log('User not logged in, redirecting to login for rating');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     if (this.userRating >= 1 && this.userRating <= 5 && this.deal) {
       const newReviewsCount = this.deal.reviews + 1;
       const newRating = ((this.deal.rating * this.deal.reviews) + this.userRating) / newReviewsCount;
       this.deal.rating = Math.round(newRating * 10) / 10;
       this.deal.reviews = newReviewsCount;
-      console.log("Updated Deal Rating:", this.deal.rating, "Reviews:", this.deal.reviews);
+      console.log('Updated Deal Rating:', this.deal.rating, 'Reviews:', this.deal.reviews);
 
-    // Update the deal on the backend with only the necessary fields
-    this.apiService.updateDeal(this.deal.id, {
-      Id: this.deal.id,
-      Title: this.deal.title,
-      Price: this.deal.price,
-      OldPrice: this.deal.oldPrice,
-      Discount: this.deal.discount,
-      Rating: this.deal.rating,
-      Reviews: this.deal.reviews,
-      Stock: this.deal.stock,
-      ExpiryDate: this.deal.expiryDate.toISOString(),
-      Category: this.deal.category,
-      Image: this.deal.images[0]
-    } as DealDto).subscribe({
-      next: () => console.log("Rating updated on backend"),
-      error: (err) => console.error("Error updating rating:", err)
-    });
+      this.apiService.updateDeal(this.deal.id, {
+        Id: this.deal.id,
+        Title: this.deal.title,
+        Price: this.deal.price,
+        OldPrice: this.deal.oldPrice,
+        Discount: this.deal.discount,
+        Rating: this.deal.rating,
+        Reviews: this.deal.reviews,
+        Stock: this.deal.stock,
+        ExpiryDate: this.deal.expiryDate.toISOString(),
+        Category: this.deal.category,
+        Image: this.deal.images[0]
+      } as DealDto).subscribe({
+        next: () => console.log('Rating updated on backend'),
+        error: (err) => console.error('Error updating rating:', err)
+      });
 
       this.userRating = 0;
       this.previewRating = 0;
     } else {
-      console.log("Invalid rating or no deal:", this.userRating, this.deal);
+      console.log('Invalid rating or no deal:', this.userRating, this.deal);
     }
   }
 
   viewDeal(deal: Deal): void {
     this.router.navigate(['/deal', deal.id]).then(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      console.log("Navigated to deal:", deal.id);
+      console.log('Navigated to deal:', deal.id);
     });
   }
 

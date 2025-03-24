@@ -15,7 +15,7 @@
         <h3>{{ likedDeal.deal.Title }}</h3>
         <p class="description">{{ likedDeal.deal.Title }}</p>
         <p class="price">Price: ${{ likedDeal.deal.Price.toFixed(2) }}</p>
-        <p class="username"><strong>Liked by:</strong> {{ likedDeal.like.Username }}</p>
+        <p class="username"><strong>Liked by:</strong> {{ likedDeal.like.username }}</p>
         <div class="actions">
           <a [routerLink]="['/deal', likedDeal.deal.Id]" class="view-deal-link">View Deal</a>
           <button class="unlike-button" (click)="unlikeDeal(likedDeal.like.Id)">Unlike</button>

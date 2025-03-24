@@ -56,7 +56,7 @@ export class LikedComponent implements OnInit {
       next: (likes) => {
         // For each like, fetch the corresponding deal details
         const dealObservables: Observable<DealDto>[] = likes.map(like =>
-          this.apiService.getDeal(like.DealId)
+          this.apiService.getDeal(like.dealId)
         );
 
         forkJoin(dealObservables).subscribe({

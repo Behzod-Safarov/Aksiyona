@@ -1,6 +1,6 @@
 export interface LikedDto {
     Id: number;
-    UserId: number;
-    Username: string;
-    DealId: number;
+    userId: number;
+    username: string;
+    dealId: number;
   }
