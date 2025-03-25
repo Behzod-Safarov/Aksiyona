@@ -1,16 +1,21 @@
-import { CommentDto } from "./comment-dto";
+import { CommentDto } from './comment-dto';
 
 export interface DealDto {
-  Id: number;
-  Image: string;
-  Title: string;
-  Price: number;
-  OldPrice: number;
-  Discount: number;
-  Rating: number;
-  Reviews: number;
-  ExpiryDate: string;
-  Category: string;
-  Stock: number;
-  Comments?: CommentDto[]; // Optional, as it may not be present in all responses
+  id: number;
+  image: string;
+  title: string;
+  price: number;
+  oldPrice: number;
+  discount: number;
+  rating: number;
+  reviews: number;
+  expiryDate: string;
+  liked: boolean;
+  subcategoryId: number;
+  category: string;
+  stock?: number;
+  createdAt: string;
+  dealStartingDate: string;
+  comments: CommentDto[];
+  notifications: any[];
 }

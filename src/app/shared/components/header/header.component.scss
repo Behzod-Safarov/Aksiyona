@@ -828,7 +828,7 @@
         right: 20%;
     }
 
-    .sign-in-btn {
+    .sign-in-btn,.sign-out-btn {
         width: 40px;
         height: 40px;
         padding: 10px;
@@ -837,7 +837,7 @@
         right: 6%;
       }
 
-      .sign-in-btn span,
+      .sign-in-btn, .sign-out-btn span,
       .dropdown-icon {
         display: none;
       }

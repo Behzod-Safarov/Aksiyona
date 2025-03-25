@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ApiService } from '../../../../services/api.service'; // Adjust path as per your structure
+import { ApiService } from '../../../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -15,6 +15,7 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   errorMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(private apiService: ApiService, private router: Router) {
     console.log('LoginComponent initialized');
@@ -27,14 +28,21 @@ export class LoginComponent {
       return;
     }
 
+    this.isLoading = true;
     this.apiService.login(this.username, this.password).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token); // Store JWT token
         console.log('Login successful:', response);
-        this.router.navigate(['/dashboard']); // Redirect to dashboard on success
+        this.isLoading = false;
+        
+        // Navigate to home and refresh
+        this.router.navigate(['/']).then(() => {
+          window.location.reload(); // Refresh the page after navigation
+        });
       },
       error: (err) => {
-        this.errorMessage = err.error || 'Invalid username or password.';
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Invalid username or password.';
         console.error('Login failed:', err);
       }
     });

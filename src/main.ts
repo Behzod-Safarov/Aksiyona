@@ -10,7 +10,7 @@ import { authGuard } from './app/features/auth/auth.guard';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'deal/:id', component: DealDetailsComponent, canActivate: [authGuard] },
+  { path: 'deal/:id', component: DealDetailsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'liked', component: LikedComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }

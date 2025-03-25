@@ -1,30 +1,39 @@
 <div class="liked-container">
-    <h2>My Liked Deals</h2>
-  
-    <!-- Loading State -->
-    <div class="loading" *ngIf="isLoading">
-      <p>Loading your liked deals...</p>
-    </div>
-  
-    <!-- Error Message -->
-    <p class="error-message" *ngIf="errorMessage && !isLoading">{{ errorMessage }}</p>
-  
-    <!-- Liked Deals List -->
-    <div class="liked-list" *ngIf="likedDeals.length > 0 && !isLoading; else noLikes">
-      <div class="liked-item" *ngFor="let likedDeal of likedDeals">
-        <h3>{{ likedDeal.deal.Title }}</h3>
-        <p class="description">{{ likedDeal.deal.Title }}</p>
-        <p class="price">Price: ${{ likedDeal.deal.Price.toFixed(2) }}</p>
+  <h2>My Liked Deals</h2>
+
+  <!-- Loading State -->
+  <div class="loading" *ngIf="isLoading">
+    <p>Loading your liked deals...</p>
+  </div>
+
+  <!-- Error Message -->
+  <p class="error-message" *ngIf="errorMessage && !isLoading">{{ errorMessage }}</p>
+
+  <!-- Liked Deals List -->
+  <div class="liked-list" *ngIf="likedDeals.length > 0 && !isLoading; else noLikes">
+    <div class="liked-item" *ngFor="let likedDeal of likedDeals">
+      <div class="deal-image">
+        <img 
+          [src]="likedDeal.deal.image || 'assets/placeholder.jpg'" 
+          [alt]="likedDeal.deal.title" 
+          (error)="onImageError($event)"
+        >
+      </div>
+      <div class="deal-details">
+        <h3>{{ likedDeal.deal.title }}</h3>
+        <p class="description">{{ likedDeal.deal.title }}</p>
+        <p class="price">Price: ${{ likedDeal.deal.price.toFixed(2) }}</p>
         <p class="username"><strong>Liked by:</strong> {{ likedDeal.like.username }}</p>
         <div class="actions">
-          <a [routerLink]="['/deal', likedDeal.deal.Id]" class="view-deal-link">View Deal</a>
+          <a [routerLink]="['/deal', likedDeal.deal.id]" class="view-deal-link">View Deal</a>
           <button class="unlike-button" (click)="unlikeDeal(likedDeal.like.Id)">Unlike</button>
         </div>
       </div>
     </div>
-  
-    <!-- No Likes Message -->
-    <ng-template #noLikes>
-      <p class="no-likes" *ngIf="!isLoading">You haven't liked any deals yet.</p>
-    </ng-template>
   </div>
+
+  <!-- No Likes Message -->
+  <ng-template #noLikes>
+    <p class="no-likes" *ngIf="!isLoading">You haven't liked any deals yet.</p>
+  </ng-template>
+</div>

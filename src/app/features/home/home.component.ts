@@ -64,25 +64,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.apiService.getDeals().subscribe({
       next: (deals: DealDto[]) => {
         this.deals = deals.map((deal: DealDto) => {
-          const expiryDate = deal.ExpiryDate ? new Date(deal.ExpiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000); // Default to 1 day from now
+          const expiryDate = deal.expiryDate ? new Date(deal.expiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000); // Default to 1 day from now
           if (isNaN(expiryDate.getTime())) {
-            console.warn(`Invalid ExpiryDate for deal ${deal.Id}, using default date`);
+            console.warn(`Invalid ExpiryDate for deal ${deal.id}, using default date`);
             expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
           }
           return {
-            id: deal.Id ?? 0,
-            image: deal.Image ?? 'placeholder.jpg',
-            title: deal.Title ?? 'Untitled Deal',
-            price: deal.Price ?? 0,
-            oldPrice: deal.OldPrice ?? 0,
-            discount: deal.Discount ?? 0,
-            rating: deal.Rating ?? 0,
-            reviews: deal.Reviews ?? 0,
+            id: deal.id ?? 0,
+            image: deal.image ?? 'placeholder.jpg',
+            title: deal.title ?? 'Untitled Deal',
+            price: deal.price ?? 0,
+            oldPrice: deal.oldPrice ?? 0,
+            discount: deal.discount ?? 0,
+            rating: deal.rating ?? 0,
+            reviews: deal.reviews ?? 0,
             expiryDate: expiryDate,
             timeLeft: '',
             liked: false, // Will be set after fetching liked deals
-            category: deal.Category ?? 'Unknown',
-            stock: deal.Stock ?? 0,
+            category: deal.category ?? 'Unknown',
+            stock: deal.stock ?? 0,
             likeId: undefined
           } as Deal;
         }).filter((deal: Deal) => !isNaN(deal.expiryDate.getTime()));

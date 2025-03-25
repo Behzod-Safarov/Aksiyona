@@ -99,6 +99,7 @@ export class HeaderComponent {
   }
 
   hertIconClicked(): void {
+    this.router.navigate(['liked']);
     console.log("Heart icon clicked");
   }
 

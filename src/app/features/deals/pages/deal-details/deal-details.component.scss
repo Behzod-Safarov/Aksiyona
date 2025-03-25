@@ -242,7 +242,7 @@
       background: #218838;
     }
     &:disabled {
-      background: #ccc;
+      background: #4A4A4A;
       cursor: not-allowed;
     }
   }
@@ -303,7 +303,7 @@
     textarea {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ddd;
+      border: 1px solid #4A4A4A ;
       border-radius: 5px;
       resize: vertical;
       font-size: clamp(12px, 3vw, 14px); /* Scales up to original 14px */

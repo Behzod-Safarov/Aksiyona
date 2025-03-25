@@ -3,15 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LikedDto } from '../core/models/liked-dto';
 import { DealDto } from '../core/models/deal-dto';
+import { CommentDto } from '../core/models/comment-dto';
 
-export interface CommentDto {
-  id?: number;
-  dealId: number;
-  userId: number;
-  username: string;
-  text: string;
-  createdAt?: string;
-}
 
 @Injectable({
   providedIn: 'root'

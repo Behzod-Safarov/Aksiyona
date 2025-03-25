@@ -25,7 +25,7 @@
         <span class="discount">-{{ deal.discount }}%</span>
       </div>
       <p class="rating">
-        <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= deal.rating">⭐</span>
+        <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= deal.rating">★</span>
         {{ deal.rating.toFixed(1) }} ({{ deal.reviews | number }} reviews)
       </p>
       <p class="stock" [class.low]="deal.stock <= 5">{{ deal.stock }} in stock</p>
@@ -87,7 +87,7 @@
             <span class="discount">-{{ recDeal.discount }}%</span>
           </div>
           <p class="rating">
-            <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= recDeal.rating">⭐</span>
+            <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= recDeal.rating">★</span>
             {{ recDeal.rating.toFixed(1) }} ({{ recDeal.reviews | number }} reviews)
           </p>
           <button class="view-deal" (click)="viewDeal(recDeal)">View Deal</button>

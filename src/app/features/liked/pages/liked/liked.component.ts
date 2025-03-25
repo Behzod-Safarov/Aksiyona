@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { ApiService } from '../../../../services/api.service'; // Adjust path as per your structure
-import { forkJoin, Observable } from 'rxjs';
+import { ApiService } from '../../../../services/api.service';
+import { AuthService } from '../../../../services/auth.service';
+import { forkJoin, Observable, Subscription } from 'rxjs';
 import { LikedDto } from '../../../../core/models/liked-dto';
 import { DealDto } from '../../../../core/models/deal-dto';
 
@@ -18,31 +19,32 @@ interface LikedDeal {
   templateUrl: './liked.component.html',
   styleUrls: ['./liked.component.scss']
 })
-export class LikedComponent implements OnInit {
+export class LikedComponent implements OnInit, OnDestroy {
   likedDeals: LikedDeal[] = [];
   userId: number | null = null;
   errorMessage: string = '';
   isLoading: boolean = false;
+  private authSub: Subscription | undefined;
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    // Extract userId from JWT token
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
-        this.userId = payload.userId || null; // Adjust based on your JWT structure
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        this.errorMessage = 'Invalid token. Please log in again.';
+    this.authSub = this.authService.userId$.subscribe(userId => {
+      this.userId = userId;
+      if (this.userId) {
+        this.loadLikedDeals();
+      } else {
+        this.errorMessage = 'User not authenticated. Please log in.';
       }
-    }
+    });
+  }
 
-    if (this.userId) {
-      this.loadLikedDeals();
-    } else {
-      this.errorMessage = 'User not authenticated. Please log in.';
+  ngOnDestroy(): void {
+    if (this.authSub) {
+      this.authSub.unsubscribe();
     }
   }
 
@@ -54,7 +56,12 @@ export class LikedComponent implements OnInit {
 
     this.apiService.getUserLikedDeals(this.userId).subscribe({
       next: (likes) => {
-        // For each like, fetch the corresponding deal details
+        if (likes.length === 0) {
+          this.likedDeals = [];
+          this.isLoading = false;
+          return;
+        }
+
         const dealObservables: Observable<DealDto>[] = likes.map(like =>
           this.apiService.getDeal(like.dealId)
         );
@@ -92,5 +99,10 @@ export class LikedComponent implements OnInit {
         console.error('Error removing like:', err);
       }
     });
+  }
+
+  onImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/placeholder.jpg'; // Fallback image
   }
 }
