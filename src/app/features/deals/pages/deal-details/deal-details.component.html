@@ -25,7 +25,7 @@
         <span class="discount">-{{ deal.discount }}%</span>
       </div>
       <p class="rating">
-        <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= deal.rating">★</span>
+        <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= generalRate">★</span>
         {{ deal.rating.toFixed(1) }} ({{ deal.reviews | number }} reviews)
       </p>
       <p class="stock" [class.low]="deal.stock <= 5">{{ deal.stock }} in stock</p>
@@ -51,14 +51,14 @@
       >★</span>
     </div>
 
-    <button class="submit-rating" (click)="submitRating()" [disabled]="userRating === 0">Submit Rating</button>
+    <button class="submit-rating" (click)="submitRating()" [disabled]="!isdealReRated">Submit Rating</button>
   </div>
 
   <!-- Comments Section -->
   <div class="comments-section">
     <h3>Comments ({{ deal.comments.length || 0 }})</h3>
-    <div class="comments-list" *ngIf="deal.comments?.length; else noComments">
-      <div class="comment" *ngFor="let comment of deal.comments">
+    <div class="comments-list" *ngIf="comments?.length; else noComments">
+      <div class="comment" *ngFor="let comment of comments">
         <p class="comment-user">{{ comment.username }} <span class="comment-date">{{ comment.createdAt | date:'short' }}</span></p>
         <p class="comment-text">{{ comment.text }}</p>
       </div>

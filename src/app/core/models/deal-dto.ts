@@ -19,3 +19,8 @@ export interface DealDto {
   comments: CommentDto[];
   notifications: any[];
 }
+
+
+export interface UpdateReviewDto {
+ id: string;
+}

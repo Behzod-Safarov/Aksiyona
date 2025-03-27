@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../../services/auth.service';
-import { DealDto } from '../../../../core/models/deal-dto';
+import { DealDto, UpdateReviewDto } from '../../../../core/models/deal-dto';
 import { LikedDto } from '../../../../core/models/liked-dto';
 import { ApiService } from '../../../../services/api.service';
 import { CommentDto } from '../../../../core/models/comment-dto';
@@ -12,10 +12,10 @@ import { CommentDto } from '../../../../core/models/comment-dto';
 interface Comment {
   id: number;
   username: string;
-  text: string;
+  text?: string;
   createdAt: Date;
   rate?: number;
-  userId: number; // Added to track the user who made the comment
+  userId: number;
 }
 
 interface Deal {
@@ -49,14 +49,18 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   selectedImage: string = '';
   timeLeft: string = '';
   newComment: string = '';
-  userRating: number = 0; // Will display user's existing rating if signed in
+  isdealReRated: boolean = false;
+  userRating: number = 0;
   previewRating: number = 0;
   recommendedDeals: Deal[] = [];
+  comments: CommentDto[] = []
   userId: number | null = null;
+  generalRate: number = 0;
   error: string | null = null;
   private routeSub: Subscription | undefined;
   private countdownInterval: any;
   private authSub: Subscription | undefined;
+  
 
   constructor(
     private route: ActivatedRoute,
@@ -67,7 +71,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('Component initialized');
-
+    this.isdealReRated = false;
     this.authSub = this.authService.userId$.subscribe(userId => {
       this.userId = userId;
       console.log('User ID from AuthService:', this.userId);
@@ -84,6 +88,8 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       this.dealId = params['id'];
       console.log('Deal ID from route:', this.dealId);
       if (this.dealId) {
+        console.log('came here')
+        this.updateDealReviews(this.dealId)
         this.fetchDealDetails(Number(this.dealId));
         this.fetchRecommendedDeals();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -126,6 +132,29 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       next: (dealData: DealDto) => {
         const expiryDate = this.parseDate(dealData.expiryDate);
         this.deal = this.mapDealDtoToDeal(dealData, expiryDate);
+        
+
+        
+        const validRates = this.deal.comments
+                          .map(x => x.rate)
+                          .filter(rate => rate !== null && rate !== undefined);
+
+        this.generalRate = validRates.length > 0 
+          ? validRates.reduce((sum, rate) => sum + rate, 0) / validRates.length 
+          : 0; // Default to 0 if no valid rates exist
+         
+        this.comments = this.deal.comments
+          .filter(x => x.text != null)
+          .map(comment => ({
+            id: comment.id,
+            text: comment.text!,
+            createdAt: comment.createdAt.toISOString(),
+            dealId: this.deal!.id,
+            userId: comment.userId,
+            username: comment.username,
+            rate: comment.rate
+          }));
+
         this.selectedImage = this.deal.images[0] || 'placeholder.jpg';
         if (this.userId) {
           this.fetchLikedState();
@@ -354,6 +383,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   setUserRating(rating: number): void {
     this.userRating = rating;
     this.previewRating = rating;
+    this.isdealReRated = true
     console.log('User Rating Set To:', this.userRating);
   }
 
@@ -372,13 +402,14 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       this.redirectToLogin();
       return;
     }
-
+    
+    this.isdealReRated = false;
     if (this.userRating >= 1 && this.userRating <= 5 && this.deal) {
       const commentPayload: CommentDto = {
         dealId: this.deal.id,
         userId: this.userId!,
         username: this.userId ? 'User' : 'Anonymous', // Backend will set this based on UserId
-        text: this.newComment || `Rated ${this.userRating} stars`,
+        text: this.newComment,
         createdAt: new Date().toISOString(),
         rate: this.userRating
       };
@@ -388,7 +419,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
           const comment: Comment = {
             id: newComment.id ?? 0,
             username: newComment.username || 'Anonymous',
-            text: newComment.text,
+            text: undefined,
             createdAt: newComment.createdAt ? new Date(newComment.createdAt) : new Date(),
             rate: newComment.rate,
             userId: newComment.userId
@@ -433,5 +464,22 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
     const returnUrl = this.router.url; // Current URL to return to after login
     this.router.navigate(['/login'], { queryParams: { returnUrl } });
     this.error = 'Please log in to comment or rate this deal.';
+  }
+
+  private updateDealReviews(dealId: string): void {
+    const reviewData: UpdateReviewDto = {
+      id: dealId,
+    };
+    
+    this.apiService.updateReview(dealId, reviewData).subscribe({
+      next: (updatedDeal: DealDto) => {
+        console.log('Deal reviews updated:', updatedDeal);
+        this.deal!.reviews = updatedDeal.reviews; // Update local deal
+      },
+      error: (err) => {
+        console.error('Error updating deal reviews:', err);
+        this.error = 'Failed to update deal reviews.';
+      }
+    });
   }
 }
