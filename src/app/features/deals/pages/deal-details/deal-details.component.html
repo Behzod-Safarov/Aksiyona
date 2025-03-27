@@ -25,14 +25,13 @@
         <span class="discount">-{{ deal.discount }}%</span>
       </div>
       <p class="rating">
-        <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= generalRate">★</span>
+        <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= deal.rating">★</span>
         {{ deal.rating.toFixed(1) }} ({{ deal.reviews | number }} reviews)
       </p>
       <p class="stock" [class.low]="deal.stock <= 5">{{ deal.stock }} in stock</p>
       <p class="countdown" [class.expired]="timeLeft === 'Expired'">
         Time Left: {{ timeLeft || 'Calculating...' }}
       </p>
-      <!-- Removed seller since it's not in the API -->
       <p class="description">{{ deal.description }}</p>
       <button class="buy-now" [disabled]="deal.stock === 0 || timeLeft === 'Expired'">Buy Now</button>
     </div>
@@ -56,7 +55,7 @@
 
   <!-- Comments Section -->
   <div class="comments-section">
-    <h3>Comments ({{ deal.comments.length || 0 }})</h3>
+    <h3>Comments ({{ comments.length || 0 }})</h3>
     <div class="comments-list" *ngIf="comments?.length; else noComments">
       <div class="comment" *ngFor="let comment of comments">
         <p class="comment-user">{{ comment.username }} <span class="comment-date">{{ comment.createdAt | date:'short' }}</span></p>

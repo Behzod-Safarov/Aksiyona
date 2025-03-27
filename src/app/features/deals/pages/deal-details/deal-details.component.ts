@@ -34,6 +34,7 @@ interface Deal {
   comments: Comment[];
   liked: boolean;
   likeId?: number;
+  location?: string;
 }
 
 @Component({
@@ -53,9 +54,9 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   userRating: number = 0;
   previewRating: number = 0;
   recommendedDeals: Deal[] = [];
-  comments: CommentDto[] = []
+  comments: Comment[] = []
   userId: number | null = null;
-  generalRate: number = 0;
+  location: string = "https://www.google.com/maps/place/IT+Park+Tashkent/@41.3019461,69.2421333,13551m/data=!3m1!1e3!4m10!1m2!2m1!1sit+park+location!3m6!1s0x38aef52099f9f365:0xfbd5b98a8fa2c648!8m2!3d41.3030093!4d69.3148814!15sChBpdCBwYXJrIGxvY2F0aW9uWgkiB2l0IHBhcmuSAQ9sZWFybmluZ19jZW50ZXLgAQA!16s%2Fg%2F11pctf4lp8?entry=ttu&g_ep=EgoyMDI1MDMyNC4wIKXMDSoASAFQAw%3D%3D";
   error: string | null = null;
   private routeSub: Subscription | undefined;
   private countdownInterval: any;
@@ -77,7 +78,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       console.log('User ID from AuthService:', this.userId);
       if (this.userId && this.deal) {
         this.fetchLikedState();
-        this.setUserRatingFromComments(); // Set existing rating if user is signed in
+        this.setUserRatingFromComments();
       }
       if (this.userId && this.recommendedDeals.length > 0) {
         this.updateRecommendedDealsLikedState();
@@ -133,32 +134,12 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
         const expiryDate = this.parseDate(dealData.expiryDate);
         this.deal = this.mapDealDtoToDeal(dealData, expiryDate);
         
-
-        
-        const validRates = this.deal.comments
-                          .map(x => x.rate)
-                          .filter(rate => rate !== null && rate !== undefined);
-
-        this.generalRate = validRates.length > 0 
-          ? validRates.reduce((sum, rate) => sum + rate, 0) / validRates.length 
-          : 0; // Default to 0 if no valid rates exist
-         
-        this.comments = this.deal.comments
-          .filter(x => x.text != null)
-          .map(comment => ({
-            id: comment.id,
-            text: comment.text!,
-            createdAt: comment.createdAt.toISOString(),
-            dealId: this.deal!.id,
-            userId: comment.userId,
-            username: comment.username,
-            rate: comment.rate
-          }));
+        this.comments = this.deal.comments.filter(x => x.text !== '');
 
         this.selectedImage = this.deal.images[0] || 'placeholder.jpg';
         if (this.userId) {
           this.fetchLikedState();
-          this.setUserRatingFromComments(); // Set user's existing rating
+          this.setUserRatingFromComments();
         }
         this.startCountdown();
       },
