@@ -24,7 +24,7 @@
     <ng-container *ngIf="!loading && !error">
       <div
         class="card"
-        *ngFor="let deal of deals; trackBy: trackByDealId; let i = index"
+        *ngFor="let deal of filteredDeals; trackBy: trackByDealId; let i = index"
         (click)="openDeal(deal)"
         tabindex="0"
         (keydown.enter)="openDeal(deal)"

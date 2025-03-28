@@ -7,11 +7,12 @@
         <div class="search-container">
           <div class="search-bar">
             <!-- Search Input -->
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Search for deals" 
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search for deals"
               [(ngModel)]="searchQuery"
+              (ngModelChange)="querySearch()"
             >
             <!-- Location Selection Button -->
             <button class="location-btn" (click)="toggleDropdown($event)">
@@ -232,8 +233,13 @@
         <div class="large-subcategories-container">
           <ul>
             <li *ngFor="let sub of category.subcategories" (click)="selectSubcategoryLarge(category.name, sub, $event)">
+              <input
+                type="checkbox"
+                [checked]="selectedSubcategories.includes(sub)"
+                (click)="selectSubcategoryLarge(category.name, sub, $event)"
+              >
               {{ sub }}
-            </li>
+            </li>            
           </ul>
         </div>
       </ul>
@@ -364,8 +370,15 @@
 
     <!-- Subcategories -->
     <ul class="subcategory-list" [ngClass]="{'open': category.isOpen}">
-      <li *ngFor="let sub of category.subcategories" (click)="selectSubcategory(category.name, sub, $event)">
-        {{ sub }}
+      <li *ngFor="let sub of category.subcategories">
+        <label>
+          <input
+            type="checkbox"
+            [checked]="selectedSubcategories.includes(sub)"
+            (change)="selectSubcategory(category.name, sub, $event)"
+          >
+          {{ sub }}
+        </label>
       </li>
     </ul>
 
