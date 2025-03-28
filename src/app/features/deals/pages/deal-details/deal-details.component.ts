@@ -8,6 +8,7 @@ import { DealDto, UpdateReviewDto } from '../../../../core/models/deal-dto';
 import { LikedDto } from '../../../../core/models/liked-dto';
 import { ApiService } from '../../../../services/api.service';
 import { CommentDto } from '../../../../core/models/comment-dto';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 interface Comment {
   id: number;
@@ -34,7 +35,7 @@ interface Deal {
   comments: Comment[];
   liked: boolean;
   likeId?: number;
-  location?: string;
+  location: string;
 }
 
 @Component({
@@ -54,21 +55,23 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   userRating: number = 0;
   previewRating: number = 0;
   recommendedDeals: Deal[] = [];
-  comments: Comment[] = []
+  comments: Comment[] = [];
   userId: number | null = null;
-  location: string = "https://www.google.com/maps/place/IT+Park+Tashkent/@41.3019461,69.2421333,13551m/data=!3m1!1e3!4m10!1m2!2m1!1sit+park+location!3m6!1s0x38aef52099f9f365:0xfbd5b98a8fa2c648!8m2!3d41.3030093!4d69.3148814!15sChBpdCBwYXJrIGxvY2F0aW9uWgkiB2l0IHBhcmuSAQ9sZWFybmluZ19jZW50ZXLgAQA!16s%2Fg%2F11pctf4lp8?entry=ttu&g_ep=EgoyMDI1MDMyNC4wIKXMDSoASAFQAw%3D%3D";
+  location: SafeResourceUrl | null = null; // Change to nullable SafeResourceUrl
   error: string | null = null;
   private routeSub: Subscription | undefined;
   private countdownInterval: any;
   private authSub: Subscription | undefined;
-  
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private apiService: ApiService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private sanitizer: DomSanitizer
+  ) 
+  { 
+  }
 
   ngOnInit(): void {
     console.log('Component initialized');
@@ -89,8 +92,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       this.dealId = params['id'];
       console.log('Deal ID from route:', this.dealId);
       if (this.dealId) {
-        console.log('came here')
-        this.updateDealReviews(this.dealId)
+        this.updateDealReviews(this.dealId);
         this.fetchDealDetails(Number(this.dealId));
         this.fetchRecommendedDeals();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -122,9 +124,11 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       expiryDate: new Date(),
       comments: [],
       liked: false,
-      likeId: undefined
+      likeId: undefined,
+      location: 'https://www.google.com/maps?q=41.379788,69.306893&output=embed' // Default location
     };
     this.selectedImage = this.deal.images[0];
+    this.location = this.sanitizer.bypassSecurityTrustResourceUrl(this.deal.location);
     this.startCountdown();
   }
 
@@ -133,10 +137,17 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       next: (dealData: DealDto) => {
         const expiryDate = this.parseDate(dealData.expiryDate);
         this.deal = this.mapDealDtoToDeal(dealData, expiryDate);
-        
         this.comments = this.deal.comments.filter(x => x.text !== '');
-
         this.selectedImage = this.deal.images[0] || 'placeholder.jpg';
+
+        // Set and sanitize the location URL from the backend
+        if (this.deal.location) {
+          this.location = this.sanitizer.bypassSecurityTrustResourceUrl(this.deal.location);
+        } else {
+          this.location = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.google.com/maps?q=41.379788,69.306893&output=embed');
+        }
+        
+        console.log(this.deal.location);
         if (this.userId) {
           this.fetchLikedState();
           this.setUserRatingFromComments();
@@ -222,13 +233,13 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
         text: c.text,
         createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
         rate: c.rate,
-        userId: c.userId // Include userId for tracking
+        userId: c.userId
       })),
       liked: false,
-      likeId: undefined
+      likeId: undefined,
+      location: dto.location // Assuming DealDto has a location field
     };
   }
-
   private updateRecommendedDealsLikedState(): void {
     if (!this.userId) return;
 

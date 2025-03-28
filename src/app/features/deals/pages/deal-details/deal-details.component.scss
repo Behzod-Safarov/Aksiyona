@@ -77,14 +77,23 @@
 
 .location {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  color: #007bff; /* Blue link color, adjust as needed */
-  text-decoration: none; /* Remove underline, optional */
+  top: 150px;
+  right: 185px;
+  width: 150px;  /* Set width */
+  height: 100px;  /* Set height */
+  color: #007bff; /* Blue link color */
+  background-color: #f8f9fa; /* Light background */
+  text-decoration: none; /* Remove underline */
+  text-align: center; /* Center text */
+  line-height: 50px; /* Align text vertically */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow */
+  font-weight: bold; /* Make text bold */
+  display: inline-block; /* Ensure it behaves properly */
 }
 
 .location:hover {
-  text-decoration: underline; /* Add underline on hover, optional */
+  background-color: #e2e6ea; /* Change background on hover */
 }
 
 .pricing {
@@ -635,6 +644,7 @@
     font-size: 18px; /* Original size */
     padding: 50px 0; /* Original padding */
   }
+
 }
 
 /* Optional: Tablet Adjustments (768px and up) */
@@ -644,7 +654,13 @@
     gap: 25px;
     padding: 20px;
   }
-
+  .location {
+    position: relative;
+    top: 500px;
+    right: 185px;
+    width: 30px;
+    height: 20px;
+  }
   .main-image {
     max-height: 400px; /* Slightly smaller than desktop */
   }

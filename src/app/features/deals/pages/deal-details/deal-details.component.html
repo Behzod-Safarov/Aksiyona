@@ -19,6 +19,10 @@
     </div>
 
     <div class="details-section">
+      <div class="location" *ngIf="location">
+          <iframe [src]="location" width="300" height="200" style="border:0;" allowfullscreen loading="lazy"></iframe>
+      </div>
+    
       <div class="pricing">
         <span class="new-price">{{ deal.price | currency:'UZS':'symbol':'1.0-0' }}</span>
         <span class="old-price">{{ deal.oldPrice | currency:'UZS':'symbol':'1.0-0' }}</span>
