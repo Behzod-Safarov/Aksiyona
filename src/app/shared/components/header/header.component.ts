@@ -13,25 +13,33 @@ import { FilterService } from '../../services/filter.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
-  categories = [
-    { name: 'Beauty & Spas', isOpen: false, subcategories: ['Restaurants', 'Shops', 'Events'] },
-    { name: 'Things To Do', isOpen: false, subcategories: ['Flowers', 'Toys', 'Accessories'] },
-    { name: 'Food & Drink', isOpen: false, subcategories: ['Hotels', 'Flights', 'Tour Packages'] },
-    { name: 'Auto and Home Services', isOpen: false, subcategories: ['Hotels', 'Flights', 'Tour Packages'] },
-    { name: 'Gifts', isOpen: false, subcategories: ['Electronics', 'Clothing', 'Home Appliances'] },
-    { name: 'Local', isOpen: false, subcategories: ['Food Discounts', 'Tech Deals', 'Clothing Offers'] },
-    { name: 'Travel', isOpen: false, subcategories: ['Makeup', 'Skincare', 'Haircare'] },
-    { name: 'Goods',  isOpen: false, subcategories: ['Home Repairs', 'Cleaning', 'Moving'] },
-    { name: 'Coupons',  isOpen: false, subcategories: ['Movies', 'Concerts', 'Sports'] }
+   categories = [
+    { name: "Beauty & Spas", isOpen: false, subcategories: ["Club Memberships", "Spa & Wellness", "Skincare", "Cosmetic Treatments"] },
+    { name: "Things To Do", isOpen: false, subcategories: ["Outdoor & Sports", "Tourist Attractions"] },
+    { name: "Food & Drink", isOpen: false, subcategories: ["Travel Packages"] }, // Limited overlap; could expand if needed
+    { name: "Auto and Home Services", isOpen: false, subcategories: ["Car Accessories", "Home Appliances", "Furniture", "Kitchenware"] },
+    { name: "Gifts", isOpen: false, subcategories: ["Footwear", "Clothing", "Watches & Jewelry", "Bags & Purses"] },
+    { name: "Local", isOpen: false, subcategories: ["Gym Memberships", "Smart Home Devices"] }, // Broad interpretation
+    { name: "Travel", isOpen: false, subcategories: ["Travel Packages"] },
+    { name: "Goods", isOpen: false, subcategories: ["Books & Stationery", "Pet Supplies", "Language Courses", "Online Courses"] },
+    { name: "Coupons", isOpen: false, subcategories: ["Electronics", "Fitness Gear"] }, // Broad interpretation
   ];
 
-  locations = [
+   locations = [
     { 
-      region: "Toshkent", 
+      region: "Toshkent Viloyati", // Renamed to clarify it’s the province
       subregions: [
-        "Toshkent", "Bektemir", "Mirobod", "Mirzo Ulug‘bek", "Sergeli", "Uchtepa", "Chilonzor",
-        "Shayxontohur", "Yashnobod", "Yunusobod", "Olmazor", "Yakkasaroy", "Yangihayot", 
+        "Bektemir", "Mirobod", "Mirzo Ulugbek", "Sergeli", "Uchtepa", "Chilonzor",
+        "Shayxontohur", "Yashnobod", "Yunusobod", "Olmazor", "Yakkasaroy", "Yangihayot",
         "Angren", "Ohangaron", "Chirchiq", "Yangiyo‘l", "Parkent", "Nurafshon"
+      ], 
+      expanded: false 
+    },
+    { 
+      region: "Toshkent Shahri", // Separated city from province
+      subregions: [
+        "Chorsu", "Almazar", "Uchtepa", "Yunusobod", "Chilonzor", "Mirzo Ulugbek",
+        "Sergeli", "Shayxontohur", "Yakkasaray", "Mirobod", "Yashnobod"
       ], 
       expanded: false 
     },
@@ -55,7 +63,8 @@ export class HeaderComponent {
       region: "Andijon", 
       subregions: [
         "Andijon", "Xonabod", "Asaka", "Baliqchi", "Bo‘ston", "Buloqboshi", 
-        "Izboskan", "Jalaquduq", "Marhamat", "Oltinko‘l", "Paxtaobod", "Shahrixon", "Ulug‘nor"
+        "Izboskan", "Jalaquduq", "Marhamat", "Oltinko‘l", "Paxtaobod", "Shahrixon", 
+        "Ulug‘nor", "Jalalkuduk", "Old Town", "Center"
       ], 
       expanded: false 
     },
@@ -63,7 +72,7 @@ export class HeaderComponent {
       region: "Buxoro", 
       subregions: [
         "Buxoro", "Kogon", "G‘ijduvon", "Jondor", "Qorako‘l", "Romitan", 
-        "Vobkent", "Olot", "Shofirkon", "Peshku"
+        "Vobkent", "Olot", "Shofirkon", "Peshku", "Lyabi Hauz", "Ark", "Old City"
       ], 
       expanded: false 
     },
@@ -71,7 +80,8 @@ export class HeaderComponent {
       region: "Farg‘ona", 
       subregions: [
         "Farg‘ona", "Qo‘qon", "Marg‘ilon", "Quva", "Rishton", "Oltiariq", 
-        "Beshariq", "Dang‘ara", "Uchko‘prik", "Furqat", "Yozyovon", "O‘zbekiston", "Toshloq"
+        "Beshariq", "Dang‘ara", "Uchko‘prik", "Furqat", "Yozyovon", "O‘zbekiston", 
+        "Toshloq", "Kokand", "Margilan"
       ], 
       expanded: false 
     },
@@ -87,7 +97,7 @@ export class HeaderComponent {
       region: "Namangan", 
       subregions: [
         "Namangan", "Chortoq", "Chust", "Pop", "Kosonsoy", "To‘raqo‘rg‘on", 
-        "Mingbuloq", "Uchqo‘rg‘on", "Yangiqo‘rg‘on", "Norin"
+        "Mingbuloq", "Uchqo‘rg‘on", "Yangiqo‘rg‘on", "Norin", "Downtown"
       ], 
       expanded: false 
     },
@@ -103,7 +113,8 @@ export class HeaderComponent {
       region: "Samarqand", 
       subregions: [
         "Samarqand", "Kattaqo‘rg‘on", "Urgut", "Bulung‘ur", "Jomboy", "Ishtixon", 
-        "Pastdarg‘om", "Nurobod", "Paxtachi", "Qo‘shrabot", "Toyloq"
+        "Pastdarg‘om", "Nurobod", "Paxtachi", "Qo‘shrabot", "Toyloq", "Registan", 
+        "Siab Bazaar", "Gur Emir", "Bibi Khanym"
       ], 
       expanded: false 
     },
@@ -119,7 +130,7 @@ export class HeaderComponent {
       region: "Xorazm", 
       subregions: [
         "Urganch", "Xiva", "Gurlan", "Shovot", "Bog‘ot", "Qo‘shko‘pir", 
-        "Yangibozor", "Xonqa", "Hazorasp", "Yangiariq", "Tuproqqal‘a"
+        "Yangibozor", "Xonqa", "Hazorasp", "Yangiariq", "Tuproqqal‘a", "Ichon Qala"
       ], 
       expanded: false 
     },
@@ -127,12 +138,12 @@ export class HeaderComponent {
       region: "Qoraqalpog‘iston", 
       subregions: [
         "Nukus", "Mo‘ynoq", "Qo‘ng‘irot", "Beruniy", "Ellikqal‘a", "Xo‘jayli", 
-        "Amudaryo", "Chimboy", "To‘rtko‘l", "Kegeyli", "Qanliko‘l", "Shumanay", "Taxtako‘pir"
+        "Amudaryo", "Chimboy", "To‘rtko‘l", "Kegeyli", "Qanliko‘l", "Shumanay", 
+        "Taxtako‘pir"
       ], 
       expanded: false 
     }
   ];
-  
 
   showAll = false;
   notificationCount: number = 4;

@@ -23,6 +23,8 @@ interface Deal {
   category: string;
   stock: number;
   likeId?: number;
+  region?: string;
+  subRegion?: string;
 }
 
 @Component({
@@ -94,7 +96,9 @@ export class HomeComponent implements OnInit, OnDestroy {
             liked: false, // Will be set after fetching liked deals
             category: deal.category ?? 'Unknown',
             stock: deal.stock ?? 0,
-            likeId: undefined
+            likeId: undefined,
+            region: deal.region,
+            subRegion: deal.subRegion
           } as Deal;
         }).filter((deal: Deal) => !isNaN(deal.expiryDate.getTime()));
 
@@ -146,17 +150,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   applyFilters(): void {
     let filtered = [...this.deals];
-
+  
     // Filter by search query
     this.filterService.searchQuery$.subscribe(query => {
       if (query) {
         filtered = filtered.filter(deal =>
           deal.title.toLowerCase().includes(query.toLowerCase()) ||
-          deal.category.toLowerCase().includes(query.toLowerCase())
+          deal.category.toLowerCase().includes(query.toLowerCase()) ||
+          (deal.region && deal.region.toLowerCase().includes(query.toLowerCase())) ||
+          (deal.subRegion && deal.subRegion.toLowerCase().includes(query.toLowerCase()))
         );
       }
     }).unsubscribe(); // Unsubscribe immediately after getting the current value
-
+  
     // Filter by selected categories
     this.filterService.selectedCategories$.subscribe(categories => {
       if (categories.length > 0) {
@@ -165,17 +171,20 @@ export class HomeComponent implements OnInit, OnDestroy {
         );
       }
     }).unsubscribe();
-
-    // Filter by selected locations (assuming Deal has no explicit location field, using title as a proxy)
+  
+    // Filter by selected locations (using region and subRegion fields)
     this.filterService.selectedLocations$.subscribe(locations => {
-      const selectedRegions = Object.values(locations).flat();
+      const selectedRegions = Object.values(locations).flat(); // Flatten regions and subregions
       if (selectedRegions.length > 0) {
         filtered = filtered.filter(deal =>
-          selectedRegions.some(loc => deal.title.toLowerCase().includes(loc.toLowerCase()))
+          selectedRegions.some(loc =>
+            (deal.region && deal.region.toLowerCase() === loc.toLowerCase()) ||
+            (deal.subRegion && deal.subRegion.toLowerCase() === loc.toLowerCase())
+          )
         );
       }
     }).unsubscribe();
-
+  
     this.filteredDeals = filtered;
     this.startCountdowns(); // Restart countdowns for filtered deals
   }

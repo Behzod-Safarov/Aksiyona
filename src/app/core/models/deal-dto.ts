@@ -19,6 +19,8 @@ export interface DealDto {
   comments: CommentDto[];
   notifications: any[];
   location: string;
+  region?: string;
+  subRegion?: string;
 }
 
 
