@@ -1,7 +1,7 @@
 <div class="container">
   <div class="grid">
-    <!-- Loading State -->
-    <div class="card loading" *ngIf="loading" role="status" aria-live="polite">
+    <!-- Initial Loading State -->
+    <div class="card loading" *ngIf="loading && deals.length === 0" role="status" aria-live="polite">
       <div class="image-wrapper">
         <div class="spinner"></div>
         <span class="visually-hidden">Loading deals...</span>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Error State -->
-    <div class="card error" *ngIf="!loading && error" role="alert" aria-live="assertive">
+    <div class="card error" *ngIf="!loading && error && deals.length === 0" role="alert" aria-live="assertive">
       <div class="card-content">
         <h3>Oops!</h3>
         <p>{{ error }}</p>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Deals List -->
-    <ng-container *ngIf="!loading && !error">
+    <ng-container *ngIf="deals.length > 0 || (!loading && !error)">
       <div
         class="card"
         *ngFor="let deal of filteredDeals; trackBy: trackByDealId; let i = index"
@@ -70,6 +70,15 @@
           />
         </svg>
       </div>
+
+      <!-- Loading More Deals State -->
+      <div class="card loading" *ngIf="loading && deals.length > 0" role="status" aria-live="polite">
+        <div class="spinner"></div>
+        <span>Loading more deals...</span>
+      </div>
+
+      <!-- Sentinel for Infinite Scroll -->
+      <div id="sentinel" style="height: 1px;"></div>
     </ng-container>
   </div>
 </div>

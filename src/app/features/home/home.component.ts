@@ -35,52 +35,79 @@ interface Deal {
   imports: [CommonModule]
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  deals: Deal[] = []; // Original list of all deals
-  filteredDeals: Deal[] = []; // Filtered list to display
-  loading: boolean = true;
+  deals: Deal[] = [];
+  filteredDeals: Deal[] = [];
+  loading: boolean = false;
   error: string | null = null;
   private countdownIntervals: any[] = [];
   userId: number | null = null;
-  private filterSubscriptions: Subscription[] = []; // To manage filter subscriptions
+  private filterSubscriptions: Subscription[] = [];
+  pageNumber = 1;
+  pageSize = 10;
+  hasMoreDeals = true;
+  private observer: IntersectionObserver | null = null;
 
   constructor(
     private apiService: ApiService,
     private authService: AuthService,
     private router: Router,
-    private filterService: FilterService // Inject FilterService
+    private filterService: FilterService
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to userId changes from AuthService
     this.authService.userId$.subscribe(userId => {
       this.userId = userId;
-      this.fetchDeals();
+      this.resetAndFetchDeals();
       console.log('userId:', this.userId);
     });
 
-    // Subscribe to filter changes from FilterService
     this.filterSubscriptions.push(
       this.filterService.searchQuery$.subscribe(() => this.applyFilters()),
       this.filterService.selectedCategories$.subscribe(() => this.applyFilters()),
       this.filterService.selectedLocations$.subscribe(() => this.applyFilters())
     );
+
+    this.setupIntersectionObserver();
+    this.fetchDeals();
   }
 
   ngOnDestroy(): void {
     this.countdownIntervals.forEach(interval => clearInterval(interval));
-    this.filterSubscriptions.forEach(sub => sub.unsubscribe()); // Clean up filter subscriptions
+    this.filterSubscriptions.forEach(sub => sub.unsubscribe());
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  resetAndFetchDeals(): void {
+    this.pageNumber = 1;
+    this.deals = [];
+    this.filteredDeals = [];
+    this.hasMoreDeals = true;
+    this.fetchDeals();
   }
 
   fetchDeals(): void {
+    if (!this.hasMoreDeals || this.loading) {
+      console.log('Fetch aborted: No more deals or already loading');
+      return;
+    }
+
     this.loading = true;
-    this.error = null;
-    this.apiService.getDeals().subscribe({
+    console.log(`Fetching deals - Page: ${this.pageNumber}, Size: ${this.pageSize}`);
+    this.apiService.getDeals(this.pageNumber, this.pageSize).subscribe({
       next: (deals: DealDto[]) => {
-        this.deals = deals.map((deal: DealDto) => {
-          const expiryDate = deal.expiryDate ? new Date(deal.expiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000); // Default to 1 day from now
+        console.log(`Received ${deals.length} deals for page ${this.pageNumber}`);
+        if (deals.length < this.pageSize) {
+          this.hasMoreDeals = false;
+          console.log('No more deals to load');
+        }
+
+        const newDeals = deals.map((deal: DealDto) => {
+          const expiryDate = deal.expiryDate ? new Date(deal.expiryDate) : new Date(Date.now() + 24 * 60 * 60 * 1000);
           if (isNaN(expiryDate.getTime())) {
             console.warn(`Invalid ExpiryDate for deal ${deal.id}, using default date`);
-            expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
+            expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000);
           }
           return {
             id: deal.id ?? 0,
@@ -93,7 +120,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             reviews: deal.reviews ?? 0,
             expiryDate: expiryDate,
             timeLeft: '',
-            liked: false, // Will be set after fetching liked deals
+            liked: false,
             category: deal.category ?? 'Unknown',
             stock: deal.stock ?? 0,
             likeId: undefined,
@@ -102,30 +129,27 @@ export class HomeComponent implements OnInit, OnDestroy {
           } as Deal;
         }).filter((deal: Deal) => !isNaN(deal.expiryDate.getTime()));
 
-        // Fetch user’s liked deals to set the liked state (only if logged in)
+        this.deals = [...this.deals, ...newDeals];
+        console.log(`Total deals after fetch: ${this.deals.length}`);
+
         if (this.userId) {
           this.apiService.getUserLikedDeals(this.userId).subscribe({
             next: (likedDeals: LikedDto[]) => {
-              console.log('Raw likedDeals from API:', likedDeals);
               this.deals = this.deals.map((deal: Deal) => {
                 const likedDeal = likedDeals.find(liked => liked.dealId === deal.id);
-                console.log(`Deal ${deal.id} - likedDeal:`, likedDeal);
-                const updatedDeal = {
+                return {
                   ...deal,
                   liked: !!likedDeal,
                   likeId: likedDeal?.Id
                 };
-                console.log('Updated deal:', updatedDeal);
-                return updatedDeal;
               });
               this.startCountdowns();
-              this.applyFilters(); // Apply filters after fetching
+              this.applyFilters();
               this.loading = false;
-              console.log('Final deals array:', this.deals);
             },
             error: (err) => {
               console.error("Error fetching liked deals:", err);
-              this.error = "Failed to load liked deals. Some features may not work as expected.";
+              this.error = "Failed to load liked deals.";
               this.startCountdowns();
               this.applyFilters();
               this.loading = false;
@@ -135,22 +159,44 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.startCountdowns();
           this.applyFilters();
           this.loading = false;
-          console.log("Deals fetched from API (no user logged in):", this.deals);
         }
       },
       error: (err) => {
         console.error("Error fetching deals:", err);
-        this.error = "Failed to load deals. Please try again later.";
-        this.deals = [];
-        this.filteredDeals = [];
+        this.error = "Failed to load deals.";
         this.loading = false;
       }
     });
   }
 
+  setupIntersectionObserver(): void {
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && this.hasMoreDeals && !this.loading) {
+          console.log('Sentinel intersected - Loading next page');
+          this.pageNumber++;
+          this.fetchDeals();
+        }
+      });
+    }, {
+      root: null,
+      threshold: 0.1
+    });
+
+    setTimeout(() => {
+      const sentinel = document.querySelector('#sentinel');
+      if (sentinel) {
+        this.observer!.observe(sentinel);
+        console.log('Observer attached to sentinel');
+      } else {
+        console.warn('Sentinel not found in DOM');
+      }
+    }, 100); // Increased delay to ensure DOM is ready
+  }
+
   applyFilters(): void {
     let filtered = [...this.deals];
-  
+
     // Filter by search query
     this.filterService.searchQuery$.subscribe(query => {
       if (query) {
@@ -161,8 +207,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           (deal.subRegion && deal.subRegion.toLowerCase().includes(query.toLowerCase()))
         );
       }
-    }).unsubscribe(); // Unsubscribe immediately after getting the current value
-  
+    }).unsubscribe();
+
     // Filter by selected categories
     this.filterService.selectedCategories$.subscribe(categories => {
       if (categories.length > 0) {
@@ -171,10 +217,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         );
       }
     }).unsubscribe();
-  
-    // Filter by selected locations (using region and subRegion fields)
+
+    // Filter by selected locations
     this.filterService.selectedLocations$.subscribe(locations => {
-      const selectedRegions = Object.values(locations).flat(); // Flatten regions and subregions
+      const selectedRegions = Object.values(locations).flat();
       if (selectedRegions.length > 0) {
         filtered = filtered.filter(deal =>
           selectedRegions.some(loc =>
@@ -184,13 +230,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         );
       }
     }).unsubscribe();
-  
+
     this.filteredDeals = filtered;
-    this.startCountdowns(); // Restart countdowns for filtered deals
+    this.startCountdowns();
   }
 
   startCountdowns(): void {
-    this.countdownIntervals.forEach(interval => clearInterval(interval)); // Clear existing intervals
+    this.countdownIntervals.forEach(interval => clearInterval(interval));
     this.countdownIntervals = [];
     this.filteredDeals.forEach((deal, index) => {
       const updateTimer = () => {
@@ -207,7 +253,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.filteredDeals[index].timeLeft = `${days}d ${hours}h ${minutes}m`;
       };
       updateTimer();
-      this.countdownIntervals[index] = setInterval(updateTimer, 60000); // Update every minute
+      this.countdownIntervals[index] = setInterval(updateTimer, 60000);
     });
   }
 
@@ -220,7 +266,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   toggleLike(event: Event, index: number): void {
     event.stopPropagation();
 
-    // Check if user is authenticated
     if (!this.userId) {
       this.router.navigate(['/login']);
       return;
@@ -231,11 +276,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     deal.liked = !deal.liked;
 
     if (deal.liked) {
-      // Add a like
       this.apiService.addLike({ userId: this.userId, dealId: deal.id }).subscribe({
         next: (likedDto: LikedDto) => {
           deal.likeId = likedDto.Id;
-          // Sync with original deals array
           this.deals = this.deals.map(d => (d.id === deal.id ? { ...deal } : d));
           console.log(`Deal ${deal.id} liked by user ${this.userId}`);
         },
@@ -246,12 +289,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Remove a like
       if (deal.likeId) {
         this.apiService.removeLike(deal.likeId).subscribe({
           next: () => {
             deal.likeId = undefined;
-            // Sync with original deals array
             this.deals = this.deals.map(d => (d.id === deal.id ? { ...deal } : d));
             console.log(`Like removed for deal ${deal.id} by user ${this.userId}`);
           },

@@ -14,8 +14,8 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  getDeals(): Observable<DealDto[]> {
-    return this.http.get<DealDto[]>(`${this.apiBaseUrl}/deal`);
+  getDeals(pageNumber: number = 1, pageSize: number = 10): Observable<DealDto[]> {
+    return this.http.get<DealDto[]>(`${this.apiBaseUrl}/deal?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
   getDeal(id: number): Observable<DealDto> {
