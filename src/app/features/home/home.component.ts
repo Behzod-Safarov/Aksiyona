@@ -10,7 +10,7 @@ import { FilterService } from '../../shared/services/filter.service';
 
 interface Deal {
   id: number;
-  image: string;
+  image: string; // This will now store the full URL
   title: string;
   price: number;
   oldPrice: number;
@@ -35,6 +35,7 @@ interface Deal {
   imports: [CommonModule]
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private readonly BASE_URL = 'http://localhost:5251';
   deals: Deal[] = [];
   filteredDeals: Deal[] = [];
   loading: boolean = false;
@@ -109,9 +110,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             console.warn(`Invalid ExpiryDate for deal ${deal.id}, using default date`);
             expiryDate.setTime(Date.now() + 24 * 60 * 60 * 1000);
           }
+          // Construct full image URL
+          const imageUrl = deal.image 
+            ? `${this.BASE_URL}${deal.image.split(',').map(img => img.trim())[0]}` 
+            : `${this.BASE_URL}/images/placeholder.jpg`;
+          console.log(`Mapped image URL for deal ${deal.id}: ${imageUrl}`); // Debug log
+
           return {
             id: deal.id ?? 0,
-            image: deal.image ?? 'placeholder.jpg',
+            image: imageUrl,
             title: deal.title ?? 'Untitled Deal',
             price: deal.price ?? 0,
             oldPrice: deal.oldPrice ?? 0,
@@ -191,7 +198,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       } else {
         console.warn('Sentinel not found in DOM');
       }
-    }, 100); // Increased delay to ensure DOM is ready
+    }, 100);
   }
 
   applyFilters(): void {

@@ -7,7 +7,7 @@ import { DealDto, UpdateReviewDto } from '../core/models/deal-dto';
 import { CommentDto } from '../core/models/comment-dto';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private apiBaseUrl = 'http://localhost:5251/api';
@@ -30,7 +30,6 @@ export class ApiService {
     return this.http.put<DealDto>(`${this.apiBaseUrl}/deal/${id}`, deal);
   }
 
-  // New method to update reviews
   updateReview(id: string, reviewData: UpdateReviewDto): Observable<DealDto> {
     return this.http.patch<DealDto>(`${this.apiBaseUrl}/deal/${id}/reviews`, reviewData);
   }
@@ -51,5 +50,9 @@ export class ApiService {
 
   removeLike(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiBaseUrl}/liked/${id}`);
+  }
+
+  getRecentNotifications(count: number = 5): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiBaseUrl}/Notification/recent?count=${count}`);
   }
 }

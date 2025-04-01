@@ -15,10 +15,10 @@ const routes: Routes = [
   { path: 'deal/:id', component: DealDetailsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'liked', component: LikedComponent, canActivate: [authGuard] },
-  { path: 'error', component: ErrorComponent }, // Specific error route
-  { path: '**', component: ErrorComponent, data: { errorCode: '404', message: 'Page Not Found' } } // Wildcard for 404
+  { path: 'error', component: ErrorComponent },
+  { path: '**', component: ErrorComponent, data: { errorCode: '404', message: 'Page Not Found' } },
 ];
 
 bootstrapApplication(AppComponent, {
-  providers: [provideRouter(routes, withComponentInputBinding()), provideHttpClient()]
+  providers: [provideRouter(routes, withComponentInputBinding()), provideHttpClient()],
 }).catch(err => console.error(err));

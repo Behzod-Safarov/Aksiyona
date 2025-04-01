@@ -57,7 +57,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   recommendedDeals: Deal[] = [];
   comments: Comment[] = [];
   userId: number | null = null;
-  location: SafeResourceUrl | null = null; // Change to nullable SafeResourceUrl
+  location: SafeResourceUrl | null = null;
   error: string | null = null;
   private routeSub: Subscription | undefined;
   private countdownInterval: any;
@@ -69,9 +69,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private authService: AuthService,
     private sanitizer: DomSanitizer
-  ) 
-  { 
-  }
+  ) { }
 
   ngOnInit(): void {
     console.log('Component initialized');
@@ -117,7 +115,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       discount: 33,
       reviews: 0,
       rating: 0,
-      images: ['placeholder.jpg'],
+      images: [`http://localhost:5251/images/placeholder.jpg`], // Use backend URL directly
       description: 'Test description',
       category: 'Test',
       stock: 10,
@@ -125,7 +123,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       comments: [],
       liked: false,
       likeId: undefined,
-      location: 'https://www.google.com/maps?q=41.379788,69.306893&output=embed' // Default location
+      location: 'https://www.google.com/maps?q=41.379788,69.306893&output=embed'
     };
     this.selectedImage = this.deal.images[0];
     this.location = this.sanitizer.bypassSecurityTrustResourceUrl(this.deal.location);
@@ -138,16 +136,15 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
         const expiryDate = this.parseDate(dealData.expiryDate);
         this.deal = this.mapDealDtoToDeal(dealData, expiryDate);
         this.comments = this.deal.comments.filter(x => x.text !== '');
-        this.selectedImage = this.deal.images[0] || 'placeholder.jpg';
+        this.selectedImage = this.deal.images[0] || `http://localhost:5251/images/placeholder.jpg`;
 
-        // Set and sanitize the location URL from the backend
         if (this.deal.location) {
           this.location = this.sanitizer.bypassSecurityTrustResourceUrl(this.deal.location);
         } else {
           this.location = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.google.com/maps?q=41.379788,69.306893&output=embed');
         }
         
-        console.log(this.deal.location);
+        console.log('Deal images:', this.deal.images); // Debug log
         if (this.userId) {
           this.fetchLikedState();
           this.setUserRatingFromComments();
@@ -214,6 +211,12 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   }
 
   private mapDealDtoToDeal(dto: DealDto, expiryDate: Date): Deal {
+    const images = dto.image 
+      ? dto.image.split(',')
+          .filter(img => img.trim() !== '')
+          .map(img => `http://localhost:5251${img}`) // Use backend URL directly
+      : [`http://localhost:5251/images/placeholder.jpg`];
+
     return {
       id: dto.id ?? 0,
       title: dto.title ?? 'Untitled Deal',
@@ -222,7 +225,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       discount: dto.discount ?? 0,
       reviews: dto.reviews ?? 0,
       rating: dto.rating ?? 0,
-      images: dto.image ? [dto.image] : ['placeholder.jpg'],
+      images: images,
       description: dto.title || 'No description available',
       category: dto.category ?? 'Unknown',
       stock: dto.stock ?? 0,
@@ -237,9 +240,10 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       })),
       liked: false,
       likeId: undefined,
-      location: dto.location // Assuming DealDto has a location field
+      location: dto.location
     };
   }
+
   private updateRecommendedDealsLikedState(): void {
     if (!this.userId) return;
 
@@ -257,6 +261,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error fetching liked deals for recommended deals:', err);
+        this.error = 'Failed to update liked states for recommended deals.';
       }
     });
   }
@@ -303,7 +308,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       const commentPayload: CommentDto = {
         dealId: this.deal.id,
         userId: this.userId!,
-        username: this.userId ? 'User' : 'Anonymous', // Username will be set by backend based on UserId
+        username: this.userId ? 'User' : 'Anonymous',
         text: this.newComment,
         createdAt: new Date().toISOString(),
         rate: undefined
@@ -375,7 +380,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   setUserRating(rating: number): void {
     this.userRating = rating;
     this.previewRating = rating;
-    this.isdealReRated = true
+    this.isdealReRated = true;
     console.log('User Rating Set To:', this.userRating);
   }
 
@@ -400,7 +405,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       const commentPayload: CommentDto = {
         dealId: this.deal.id,
         userId: this.userId!,
-        username: this.userId ? 'User' : 'Anonymous', // Backend will set this based on UserId
+        username: this.userId ? 'User' : 'Anonymous',
         text: this.newComment,
         createdAt: new Date().toISOString(),
         rate: this.userRating
@@ -419,18 +424,16 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
 
           const existingCommentIndex = this.deal!.comments.findIndex(c => c.userId === this.userId && c.rate !== undefined);
           if (existingCommentIndex >= 0) {
-            // Update existing rating
             this.deal!.comments[existingCommentIndex] = comment;
             console.log('Rating updated:', comment);
           } else {
-            // Add new rating
             this.deal!.comments = [...(this.deal!.comments || []), comment];
             console.log('Rating added:', comment);
           }
 
-          this.fetchDealDetails(this.deal!.id); // Refresh deal details to update average rating
+          this.fetchDealDetails(this.deal!.id);
           this.newComment = '';
-          this.userRating = comment.rate || 0; // Keep the rating displayed
+          this.userRating = comment.rate || 0;
           this.previewRating = this.userRating;
         },
         error: (err) => {
@@ -453,7 +456,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   }
 
   private redirectToLogin(): void {
-    const returnUrl = this.router.url; // Current URL to return to after login
+    const returnUrl = this.router.url;
     this.router.navigate(['/login'], { queryParams: { returnUrl } });
     this.error = 'Please log in to comment or rate this deal.';
   }
@@ -466,7 +469,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
     this.apiService.updateReview(dealId, reviewData).subscribe({
       next: (updatedDeal: DealDto) => {
         console.log('Deal reviews updated:', updatedDeal);
-        this.deal!.reviews = updatedDeal.reviews; // Update local deal
+        this.deal!.reviews = updatedDeal.reviews;
       },
       error: (err) => {
         console.error('Error updating deal reviews:', err);
