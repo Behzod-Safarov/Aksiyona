@@ -1,17 +1,17 @@
 <div class="login-container">
   <div class="login-card">
-    <h2>Sign In</h2>
+    <h2>Kirish</h2>
     <form (ngSubmit)="onSubmit()" class="login-form" novalidate>
       <div class="form-group">
         <label for="username" class="form-label">
-          <span class="icon">👤</span> Username
+          <span class="icon">👤</span> Ism
         </label>
         <input
           type="text"
           id="username"
           [(ngModel)]="username"
           name="username"
-          placeholder="Enter your username"
+          placeholder="Ismingizni kiriting"
           required
           class="form-input"
           [ngClass]="{'has-error': errorMessage && !username}"
@@ -19,14 +19,14 @@
       </div>
       <div class="form-group">
         <label for="password" class="form-label">
-          <span class="icon">🔒</span> Password
+          <span class="icon">🔒</span> Parol
         </label>
         <input
           type="password"
           id="password"
           [(ngModel)]="password"
           name="password"
-          placeholder="Enter your password"
+          placeholder="Parolingizni kiriting"
           required
           class="form-input"
           [ngClass]="{'has-error': errorMessage && !password}"
@@ -38,17 +38,18 @@
         [disabled]="isLoading"
         [ngClass]="{'loading': isLoading}"
       >
-        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="!isLoading">Kirish</span>
         <span *ngIf="isLoading" class="spinner"></span>
       </button>
       <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
     </form>
     <div class="additional-links">
       <p class="register-link">
-        New here? <a routerLink="/register">Create an account</a>
+        Yangi foydalanuvchi? 
+        <a [attr.href]="'https://t.me/aksiyonaqorovulbot'" target="_blank">Ro‘yxatdan o‘tish</a>
       </p>
       <p class="forgot-password">
-        <a routerLink="/forgot-password">Forgot password?</a>
+        <a [attr.href]="'https://t.me/aksiyonaqorovulbot'" target="_blank">Parolni unutdingizmi?</a>
       </p>
     </div>
   </div>

@@ -74,6 +74,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('Component initialized');
     this.isdealReRated = false;
+
     this.authSub = this.authService.userId$.subscribe(userId => {
       this.userId = userId;
       console.log('User ID from AuthService:', this.userId);

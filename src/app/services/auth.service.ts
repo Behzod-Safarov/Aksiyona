@@ -9,6 +9,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class AuthService {
   private userIdSubject = new BehaviorSubject<number | null>(null);
   userId$: Observable<number | null> = this.userIdSubject.asObservable();
+
+  private userRoleSubject = new BehaviorSubject<string | null>(null);
+  userRole$: Observable<string | null> = this.userRoleSubject.asObservable();
+
   private isBrowser: boolean;
 
   constructor(
@@ -54,9 +58,15 @@ export class AuthService {
         const userId = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
           ? Number(payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'])
           : null;
+          const userRole = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+          ? String(payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'])
+          : null;
 
         console.log('Extracted userId:', userId);
+        console.log('Extracted UserRole:', userRole);
+
         this.userIdSubject.next(userId);
+        this.userRoleSubject.next(userRole);
       } catch (error) {
         console.error('Error decoding token:', error);
         this.signOut();
@@ -64,6 +74,7 @@ export class AuthService {
     } else {
       console.warn('No valid token found in localStorage');
       this.userIdSubject.next(null);
+      this.userRoleSubject.next(null);
     }
   }
 
@@ -71,17 +82,22 @@ export class AuthService {
     this.userIdSubject.next(userId);
   }
 
+  setUserRole(userRole: string | null): void {
+    this.userRoleSubject.next(userRole);
+  }
+
   signOut(): void {
     if (this.isBrowser) {
       localStorage.removeItem('token');
     }
     this.userIdSubject.next(null);
+    this.userRoleSubject.next(null);
     this.router.navigate(['/login']);
   }
 
   isLoggedIn(): boolean {
     if (!this.isBrowser) {
-      return false; // On the server, assume the user is not logged in
+      return false;
     }
     return !!localStorage.getItem('token');
   }

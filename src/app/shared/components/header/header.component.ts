@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { FilterService } from '../../services/filter.service';
+import { ApiService } from '../../../services/api.service';
 
 @Component({
   selector: 'app-header',
@@ -146,15 +147,9 @@ export class HeaderComponent {
   ];
 
   showAll = false;
-  notificationCount: number = 4;
+  notificationCount: number = 0; // Will be updated dynamically
   showModal: boolean = false;
-  notifications = [
-    { id: 1, title: 'Deal of the Day', description: 'Limited-time offer!', time: '21 hours ago', image: 'deal_of_the_day.jpg' },
-    { id: 2, title: 'Flash Sale!', description: 'Huge discounts on electronics!', time: '12 hours ago', image: 'flash_sale.jpg' },
-    { id: 3, title: 'New Arrival', description: 'Check out our latest collection.', time: '8 hours ago', image: 'new_arrival.jpg' },
-    { id: 4, title: 'Exclusive Offer', description: 'Special deals just for you.', time: '5 hours ago', image: 'exclusive_offer.jpg' },
-    { id: 5, title: 'Weekend Sale', description: 'Best prices this weekend!', time: '2 hours ago', image: 'weekend_sale.jpg' }
-  ];
+  notifications: any[] = [];
 
   selectedRegion: string | null = null;
   selectedSubregions: { [key: string]: string[] } = {};
@@ -166,10 +161,28 @@ export class HeaderComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
+    private apiService: ApiService,
     private filterService: FilterService // Inject FilterService
   ) {
     this.locations.forEach(location => {
       this.selectedSubregions[location.region] = [];
+    });
+
+    this.loadNotifications(); // Load notifications on component initialization
+  }
+
+  // src/app/header.component.ts
+  loadNotifications(): void {
+    this.apiService.getRecentNotifications(5).subscribe({
+      next: (notifications) => {
+        this.notifications = notifications; // Each notification now has a full image URL
+        this.notificationCount = notifications.length;
+      },
+      error: (err) => {
+        console.error('Error fetching notifications:', err);
+        this.notifications = [];
+        this.notificationCount = 0;
+      },
     });
   }
 
