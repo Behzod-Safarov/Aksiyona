@@ -12,12 +12,12 @@ import { CommentDto } from '../core/models/comment-dto';
 export class ApiService {
   private apiBaseUrl = 'http://localhost:5251/api';
   private readonly BASE_URL = 'http://localhost:5251';
-  
+
   constructor(private http: HttpClient) {}
 
 getRecentNotifications(count: number = 5): Observable<any[]> {
     return this.http
-      .get<DealDto[]>(`${this.apiBaseUrl}/deal?pageNumber=1&pageSize=${count}`)
+      .get<DealDto[]>(`${this.apiBaseUrl}/Notification`)
       .pipe(
         map((deals: DealDto[]) =>
           deals.slice(0, count).map((deal) => {
