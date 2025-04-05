@@ -1,0 +1,144 @@
+<div class="deal-create-container">
+    <div class="progress-bar">
+      <div class="step" [ngClass]="{'active': currentStep === 'location'}">
+        <span class="step-number">1</span> <span class="step-text">Location</span>
+      </div>
+      <div class="step" [ngClass]="{'active': currentStep === 'category'}">
+        <span class="step-number">2</span> <span class="step-text">Category</span>
+      </div>
+      <div class="step" [ngClass]="{'active': currentStep === 'deal'}">
+        <span class="step-number">3</span> <span class="step-text">Deal Details</span>
+      </div>
+      <div class="step" [ngClass]="{'active': currentStep === 'confirmation'}">
+        <span class="step-number">4</span> <span class="step-text">Confirmation</span>
+      </div>
+      <div class="progress-line" [style.width]="progressWidth"></div>
+    </div>
+  
+    <div class="step-content animate-in">
+      <div *ngIf="errorMessage" class="error-message">{{errorMessage}}</div>
+      <div *ngIf="successMessage && currentStep !== 'success'" class="success-message">{{successMessage}}</div>
+  
+      <ng-container *ngIf="currentStep === 'location'">
+        <h2 class="step-title">Select Your Location</h2>
+        <div class="selected-info" *ngIf="selectedLocation.region || selectedLocation.isOnline">
+          <p>Selected: {{selectedLocation.isOnline ? 'Online Store' : 
+            (selectedLocation.region + (selectedLocation.subRegion ? ' - ' + this.selectedLocation.subRegion : ''))}}</p>
+        </div>
+        <div class="location-options">
+          <button class="online-btn" (click)="selectOnlineStore()" 
+                  [ngClass]="{'selected': selectedLocation.isOnline}">Online Store</button>
+          <div class="location-grid">
+            <div *ngFor="let location of locations" class="location-card animate-card">
+              <div class="location-header" (click)="toggleSubregions(location.region)"
+                   [ngClass]="{'selected': selectedLocation.region === location.region}">
+                {{location.region}}
+              </div>
+              <div class="subregions" *ngIf="showSubregions === location.region">
+                <button *ngFor="let sub of location.subregions" (click)="selectLocation(location.region, sub)"
+                        [ngClass]="{'selected': selectedLocation.subRegion === sub}">
+                  {{sub}}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+  
+      <ng-container *ngIf="currentStep === 'category'">
+        <h2 class="step-title">Choose a Category</h2>
+        <button class="back-btn" (click)="goBack()">Back</button>
+        <div class="selected-info" *ngIf="selectedCategory.name">
+          <p>Selected: {{selectedCategory.name}} - {{selectedCategory.subcategory}}</p>
+        </div>
+        <div class="category-grid">
+          <div *ngFor="let cat of categories" class="category-card animate-card">
+            <div class="category-header" (click)="toggleCategory(cat)"
+                 [ngClass]="{'selected': selectedCategory.name === cat.name}">
+              {{cat.name}}
+            </div>
+            <div class="subcategories" *ngIf="cat.isOpen">
+              <button *ngFor="let sub of cat.subcategories" 
+                      (click)="selectCategory(cat.name, sub.name, sub.id)"
+                      [ngClass]="{'selected': selectedCategory.subcategory === sub.name}">
+                {{sub.name}}
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+  
+      <ng-container *ngIf="currentStep === 'deal'">
+        <h2 class="step-title">Create Your Deal</h2>
+        <button class="back-btn" (click)="goBack()">Back</button>
+        <form class="deal-form">
+          <div class="form-group animate-field">
+            <label class="form-label">Title</label>
+            <input type="text" [(ngModel)]="deal.title" name="title" required placeholder="Enter deal title">
+          </div>
+          <div class="form-group animate-field">
+            <label class="form-label">Images (max {{maxImages}})</label>
+            <input type="file" (change)="onImageUpload($event)" accept="image/*" multiple 
+                   [disabled]="imageFiles.length >= maxImages">
+            <div class="image-preview-container">
+              <div *ngFor="let img of previewImages; let i = index" class="image-preview-wrapper">
+                <img [src]="img" class="image-preview">
+                <button type="button" class="remove-image-btn" (click)="removeImage(i)">×</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-group animate-field">
+            <label class="form-label">Original Price</label>
+            <input type="number" [(ngModel)]="deal.oldPrice" name="oldPrice" (change)="calculateDiscount()" required placeholder="e.g., 100">
+          </div>
+          <div class="form-group animate-field">
+            <label class="form-label">Discounted Price</label>
+            <input type="number" [(ngModel)]="deal.price" name="price" (change)="calculateDiscount()" required placeholder="e.g., 80">
+          </div>
+          <div class="form-group animate-field">
+            <label class="form-label">Discount (%)</label>
+            <input type="number" [(ngModel)]="deal.discount" name="discount" readonly>
+          </div>
+          <div class="form-group animate-field">
+            <label class="form-label">Expiry Date</label>
+            <input type="date" [(ngModel)]="deal.expiryDate" name="expiryDate" required>
+          </div>
+          <div class="form-group animate-field">
+            <label class="form-label">Location URL (optional)</label>
+            <div class="location-url-group">
+              <input type="url" [(ngModel)]="deal.location" name="locationUrl" placeholder="e.g., https://maps.google.com/...">
+            </div>
+          </div>
+          <button type="button" class="next-btn" (click)="goToConfirmation()" 
+                  [disabled]="!deal.title || !deal.price || !deal.oldPrice || !deal.expiryDate || !imageFiles.length">
+            Next
+          </button>
+        </form>
+      </ng-container>
+  
+      <ng-container *ngIf="currentStep === 'confirmation'">
+        <h2 class="step-title">Confirm Your Deal</h2>
+        <button class="back-btn" (click)="goBack()">Back</button>
+        <div class="confirmation-details animate-confirmation">
+          <div class="image-preview-container">
+            <img *ngFor="let img of previewImages" [src]="img" class="confirm-image">
+          </div>
+          <p class="confirm-item"><strong>Title:</strong> {{deal.title}}</p>
+          <p class="confirm-item"><strong>Location:</strong> {{selectedLocation.isOnline ? 'Online Store' : (selectedLocation.region + (selectedLocation.subRegion ? ' - ' + selectedLocation.subRegion : ''))}}</p>
+          <p class="confirm-item"><strong>Category:</strong> {{selectedCategory.name}} - {{selectedCategory.subcategory}}</p>
+          <p class="confirm-item"><strong>Price:</strong> ${{deal.price}} (Was ${{deal.oldPrice}} - {{deal.discount}}% off)</p>
+          <p class="confirm-item"><strong>Expires:</strong> {{deal.expiryDate}}</p>
+        </div>
+        <button class="confirm-btn" (click)="createDeal()">Create Deal</button>
+      </ng-container>
+  
+      <ng-container *ngIf="currentStep === 'success'">
+        <h2 class="step-title">Muvaffaqiyatli Saqlandi!</h2>
+        <div class="success-message">{{successMessage}}</div>
+        <div class="success-buttons">
+          <button class="next-btn" (click)="createAnotherDeal()">Boshqa mahsulot joylash</button>
+          <button class="confirm-btn" (click)="goToHomePage()">Home pagega qaytish</button>
+        </div>
+      </ng-container>
+    </div>
+  </div>

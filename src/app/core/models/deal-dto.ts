@@ -18,7 +18,7 @@ export interface DealDto {
   dealStartingDate: string;
   comments: CommentDto[];
   notifications: any[];
-  location: string;
+  location?: string;
   region?: string;
   subRegion?: string;
 }

@@ -35,7 +35,7 @@ interface Deal {
   comments: Comment[];
   liked: boolean;
   likeId?: number;
-  location: string;
+  location?: string;
 }
 
 @Component({
@@ -127,7 +127,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       location: 'https://www.google.com/maps?q=41.379788,69.306893&output=embed'
     };
     this.selectedImage = this.deal.images[0];
-    this.location = this.sanitizer.bypassSecurityTrustResourceUrl(this.deal.location);
+    this.location = this.sanitizer.bypassSecurityTrustResourceUrl(this.deal.location || '');
     this.startCountdown();
   }
 

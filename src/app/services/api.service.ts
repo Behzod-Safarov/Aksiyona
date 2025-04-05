@@ -1,10 +1,11 @@
-// src/app/services/api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { LikedDto } from '../core/models/liked-dto';
 import { DealDto, UpdateReviewDto } from '../core/models/deal-dto';
 import { CommentDto } from '../core/models/comment-dto';
+import { CategoryDto } from '../core/models/category-dto';
+import { LocationDto } from '../core/models/location-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -15,13 +16,12 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-getRecentNotifications(count: number = 5): Observable<any[]> {
+  getRecentNotifications(count: number = 5): Observable<any[]> {
     return this.http
       .get<DealDto[]>(`${this.apiBaseUrl}/Notification`)
       .pipe(
         map((deals: DealDto[]) =>
           deals.slice(0, count).map((deal) => {
-            // Construct full image URL, matching HomeComponent logic
             const imageUrl = deal.image
               ? `${this.BASE_URL}${deal.image.split(',').map(img => img.trim())[0]}`
               : `${this.BASE_URL}/images/placeholder.jpg`;
@@ -30,7 +30,7 @@ getRecentNotifications(count: number = 5): Observable<any[]> {
               id: deal.id,
               title: 'New Deal: ' + deal.title,
               description: `Save ${deal.discount}% on ${deal.title}!`,
-              image: imageUrl, // Use the constructed image URL
+              image: imageUrl,
             };
           })
         )
@@ -73,6 +73,19 @@ getRecentNotifications(count: number = 5): Observable<any[]> {
 
   removeLike(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiBaseUrl}/liked/${id}`);
+  }
+
+  // New method to add a deal
+  addDeal(deal: FormData): Observable<DealDto> {
+    return this.http.post<DealDto>(`${this.apiBaseUrl}/Deal`, deal);
+  }
+
+  getCategories(): Observable<CategoryDto[]> {
+    return this.http.get<CategoryDto[]>(`${this.apiBaseUrl}/Category`);
+  }
+
+  getLocations(): Observable<LocationDto[]> {
+    return this.http.get<LocationDto[]>(`${this.apiBaseUrl}/Location`);
   }
 
 }

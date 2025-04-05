@@ -9,16 +9,19 @@ import { LoginComponent } from './app/features/auth/pages/login/login.component'
 import { LikedComponent } from './app/features/liked/pages/liked/liked.component';
 import { authGuard } from './app/features/auth/auth.guard';
 import { ErrorComponent } from './app/shared/components/error/error.component';
+import { DealcreateComponent } from './app/features/bussiness/dealcreate/dealcreate.component';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'deal/:id', component: DealDetailsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'liked', component: LikedComponent, canActivate: [authGuard] },
+  { path: 'createdeal', component: DealcreateComponent},
   { path: 'error', component: ErrorComponent },
   { path: '**', component: ErrorComponent, data: { errorCode: '404', message: 'Page Not Found' } },
 ];
 
 bootstrapApplication(AppComponent, {
-  providers: [provideRouter(routes, withComponentInputBinding()), provideHttpClient()],
+  providers: [provideRouter(routes, withComponentInputBinding()),provideAnimations(), provideHttpClient()],
 }).catch(err => console.error(err));

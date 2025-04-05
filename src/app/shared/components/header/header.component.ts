@@ -187,7 +187,7 @@ export class HeaderComponent {
   }
 
   onSignInClick(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/createdeal']);
     console.log('Sign in clicked!');
   }
 
@@ -200,6 +200,7 @@ export class HeaderComponent {
     return this.authService.isLoggedIn();
   }
 
+   
   toggleNotificationModal(): void {
     this.showModal = !this.showModal;
   }
@@ -360,4 +361,9 @@ export class HeaderComponent {
     this.applyFilters(); // Apply filters when subcategory changes
     console.log(`Category: ${categoryName}, Subcategory: ${subcategoryName}`);
   }
+
+  goToCreateDeal(): void {
+    this.router.navigate(['/createdeal']);
+  }
+
 }
