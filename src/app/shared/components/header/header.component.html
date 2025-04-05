@@ -232,13 +232,13 @@
         <h3 class="large-sub-header" (click)="toggleSubcategoryLarge(category)">{{ category.name }}</h3>
         <div class="large-subcategories-container">
           <ul>
-            <li *ngFor="let sub of category.subcategories" (click)="selectSubcategoryLarge(category.name, sub, $event)">
+            <li *ngFor="let sub of category.subcategories" (click)="selectSubcategoryLarge(category.name, sub.name, $event)">
               <input
                 type="checkbox"
-                [checked]="selectedSubcategories.includes(sub)"
-                (click)="selectSubcategoryLarge(category.name, sub, $event)"
+                [checked]="selectedSubcategories.includes(sub.name)"
+                (click)="selectSubcategoryLarge(category.name, sub.name, $event)"
               >
-              {{ sub }}
+              {{ sub.name }}
             </li>            
           </ul>
         </div>
@@ -374,10 +374,10 @@
         <label>
           <input
             type="checkbox"
-            [checked]="selectedSubcategories.includes(sub)"
-            (change)="selectSubcategory(category.name, sub, $event)"
+            [checked]="selectedSubcategories.includes(sub.name)"
+            (change)="selectSubcategory(category.name, sub.name, $event)"
           >
-          {{ sub }}
+          {{ sub.name }}
         </label>
       </li>
     </ul>

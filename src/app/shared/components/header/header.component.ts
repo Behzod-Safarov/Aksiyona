@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { FilterService } from '../../services/filter.service';
 import { ApiService } from '../../../services/api.service';
+import { SubcategoryDto } from '../../../core/models/sub-category-dto';
 
 @Component({
   selector: 'app-header',
@@ -14,146 +15,17 @@ import { ApiService } from '../../../services/api.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
-   categories = [
-    { name: "Beauty & Spas", isOpen: false, subcategories: ["Club Memberships", "Spa & Wellness", "Skincare", "Cosmetic Treatments"] },
-    { name: "Things To Do", isOpen: false, subcategories: ["Outdoor & Sports", "Tourist Attractions"] },
-    { name: "Food & Drink", isOpen: false, subcategories: ["Travel Packages"] }, // Limited overlap; could expand if needed
-    { name: "Auto and Home Services", isOpen: false, subcategories: ["Car Accessories", "Home Appliances", "Furniture", "Kitchenware"] },
-    { name: "Gifts", isOpen: false, subcategories: ["Footwear", "Clothing", "Watches & Jewelry", "Bags & Purses"] },
-    { name: "Local", isOpen: false, subcategories: ["Gym Memberships", "Smart Home Devices"] }, // Broad interpretation
-    { name: "Travel", isOpen: false, subcategories: ["Travel Packages"] },
-    { name: "Goods", isOpen: false, subcategories: ["Books & Stationery", "Pet Supplies", "Language Courses", "Online Courses"] },
-    { name: "Coupons", isOpen: false, subcategories: ["Electronics", "Fitness Gear"] }, // Broad interpretation
-  ];
-
-   locations = [
-    { 
-      region: "Toshkent Viloyati", // Renamed to clarify it’s the province
-      subregions: [
-        "Bektemir", "Mirobod", "Mirzo Ulugbek", "Sergeli", "Uchtepa", "Chilonzor",
-        "Shayxontohur", "Yashnobod", "Yunusobod", "Olmazor", "Yakkasaroy", "Yangihayot",
-        "Angren", "Ohangaron", "Chirchiq", "Yangiyo‘l", "Parkent", "Nurafshon"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Toshkent Shahri", // Separated city from province
-      subregions: [
-        "Chorsu", "Almazar", "Uchtepa", "Yunusobod", "Chilonzor", "Mirzo Ulugbek",
-        "Sergeli", "Shayxontohur", "Yakkasaray", "Mirobod", "Yashnobod"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Sirdaryo", 
-      subregions: [
-        "Guliston", "Yangiyer", "Shirin", "Boyovut", "Xovos", "Mirzaobod", 
-        "Oqoltin", "Sayxunobod", "Sardoba"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Qashqadaryo", 
-      subregions: [
-        "Qarshi", "Shahrisabz", "G‘uzor", "Kitob", "Koson", "Yakkabog‘", 
-        "Muborak", "Kasbi", "Mirishkor", "Nishon", "Dehqonobod", "Chiroqchi"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Andijon", 
-      subregions: [
-        "Andijon", "Xonabod", "Asaka", "Baliqchi", "Bo‘ston", "Buloqboshi", 
-        "Izboskan", "Jalaquduq", "Marhamat", "Oltinko‘l", "Paxtaobod", "Shahrixon", 
-        "Ulug‘nor", "Jalalkuduk", "Old Town", "Center"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Buxoro", 
-      subregions: [
-        "Buxoro", "Kogon", "G‘ijduvon", "Jondor", "Qorako‘l", "Romitan", 
-        "Vobkent", "Olot", "Shofirkon", "Peshku", "Lyabi Hauz", "Ark", "Old City"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Farg‘ona", 
-      subregions: [
-        "Farg‘ona", "Qo‘qon", "Marg‘ilon", "Quva", "Rishton", "Oltiariq", 
-        "Beshariq", "Dang‘ara", "Uchko‘prik", "Furqat", "Yozyovon", "O‘zbekiston", 
-        "Toshloq", "Kokand", "Margilan"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Jizzax", 
-      subregions: [
-        "Jizzax", "G‘allaorol", "Do‘stlik", "Zomin", "Paxtakor", "Baxmal", 
-        "Forish", "Sharof Rashidov", "Mirzachul", "Arnasoy", "Yangiobod"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Namangan", 
-      subregions: [
-        "Namangan", "Chortoq", "Chust", "Pop", "Kosonsoy", "To‘raqo‘rg‘on", 
-        "Mingbuloq", "Uchqo‘rg‘on", "Yangiqo‘rg‘on", "Norin", "Downtown"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Navoiy", 
-      subregions: [
-        "Navoiy", "Zarafshon", "Karmana", "Qiziltepa", "Xatirchi", "Nurota", 
-        "Konimex", "Tomdi", "Uchquduq"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Samarqand", 
-      subregions: [
-        "Samarqand", "Kattaqo‘rg‘on", "Urgut", "Bulung‘ur", "Jomboy", "Ishtixon", 
-        "Pastdarg‘om", "Nurobod", "Paxtachi", "Qo‘shrabot", "Toyloq", "Registan", 
-        "Siab Bazaar", "Gur Emir", "Bibi Khanym"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Surxondaryo", 
-      subregions: [
-        "Termiz", "Denov", "Sho‘rchi", "Boysun", "Jarqo‘rg‘on", "Qumqo‘rg‘on", 
-        "Sherobod", "Angor", "Muzrabot", "Sariosiyo", "Oltinsoy"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Xorazm", 
-      subregions: [
-        "Urganch", "Xiva", "Gurlan", "Shovot", "Bog‘ot", "Qo‘shko‘pir", 
-        "Yangibozor", "Xonqa", "Hazorasp", "Yangiariq", "Tuproqqal‘a", "Ichon Qala"
-      ], 
-      expanded: false 
-    },
-    { 
-      region: "Qoraqalpog‘iston", 
-      subregions: [
-        "Nukus", "Mo‘ynoq", "Qo‘ng‘irot", "Beruniy", "Ellikqal‘a", "Xo‘jayli", 
-        "Amudaryo", "Chimboy", "To‘rtko‘l", "Kegeyli", "Qanliko‘l", "Shumanay", 
-        "Taxtako‘pir"
-      ], 
-      expanded: false 
-    }
-  ];
+  categories: { name: string; isOpen: boolean; subcategories: SubcategoryDto[] }[] = [];
+  locations: { region: string; subregions: string[]; expanded: boolean }[] = [];
 
   showAll = false;
-  notificationCount: number = 0; // Will be updated dynamically
+  notificationCount: number = 0;
   showModal: boolean = false;
   notifications: any[] = [];
 
   selectedRegion: string | null = null;
   selectedSubregions: { [key: string]: string[] } = {};
-  selectedSubcategories: string[] = []; // Track selected subcategories
+  selectedSubcategories: string[] = [];
   showDropdown = false;
   searchQuery = "";
   isMenuOpen = false;
@@ -162,27 +34,64 @@ export class HeaderComponent {
     private router: Router,
     private authService: AuthService,
     private apiService: ApiService,
-    private filterService: FilterService // Inject FilterService
+    private filterService: FilterService
   ) {
-    this.locations.forEach(location => {
-      this.selectedSubregions[location.region] = [];
-    });
-
-    this.loadNotifications(); // Load notifications on component initialization
+    this.loadCategories();
+    this.loadLocations();
+    this.loadNotifications();
   }
 
-  // src/app/header.component.ts
+  loadCategories() {
+    this.apiService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories.map(cat => ({
+          name: cat.name,
+          isOpen: false,
+          subcategories: cat.subcategories // Already an array of SubcategoryDto
+        }));
+        // Initialize selectedSubregions after categories are loaded
+        this.categories.forEach(() => {
+          this.selectedSubregions = { ...this.selectedSubregions };
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching categories:', err);
+        this.categories = [];
+      }
+    });
+  }
+
+  loadLocations() {
+    this.apiService.getLocations().subscribe({
+      next: (locations) => {
+        this.locations = locations.map(loc => ({
+          region: loc.region,
+          subregions: loc.subregions,
+          expanded: false
+        }));
+        // Initialize selectedSubregions for each region
+        this.locations.forEach(location => {
+          this.selectedSubregions[location.region] = [];
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching locations:', err);
+        this.locations = [];
+      }
+    });
+  }
+
   loadNotifications(): void {
     this.apiService.getRecentNotifications(5).subscribe({
       next: (notifications) => {
-        this.notifications = notifications; // Each notification now has a full image URL
+        this.notifications = notifications;
         this.notificationCount = notifications.length;
       },
       error: (err) => {
         console.error('Error fetching notifications:', err);
         this.notifications = [];
         this.notificationCount = 0;
-      },
+      }
     });
   }
 
@@ -200,7 +109,6 @@ export class HeaderComponent {
     return this.authService.isLoggedIn();
   }
 
-   
   toggleNotificationModal(): void {
     this.showModal = !this.showModal;
   }
@@ -243,7 +151,7 @@ export class HeaderComponent {
     } else {
       this.selectedSubregions[region].push(subregion);
     }
-    this.applyFilters(); // Apply filters when subregion changes
+    this.applyFilters();
     console.log("Region:", region, "Selected Subregions:", this.selectedSubregions[region]);
   }
 
@@ -254,12 +162,12 @@ export class HeaderComponent {
         selections.push(`${region}: ${this.selectedSubregions[region].join(', ')}`);
       }
     }
-    let result = selections.length > 0 ? selections.join(" | ") : "Select Location";
+    let result = selections.length > 0 ? selections.join(" | ") : "Joylashuvni tanlang"; // "Select Location" in Uzbek
     return result.length > 40 ? result.substring(0, 30) + "..." : result;
   }
 
   isSubregionSelected(region: string, subregion: string): boolean {
-    return this.selectedSubregions[region]?.includes(subregion);
+    return this.selectedSubregions[region]?.includes(subregion) || false;
   }
 
   toggleLocation(selectedLocation: any): void {
@@ -275,18 +183,20 @@ export class HeaderComponent {
     this.selectedSubregions = {};
     this.selectedSubcategories = [];
     this.searchQuery = '';
-    this.applyFilters(); // Reset filters
+    this.locations.forEach(location => {
+      this.selectedSubregions[location.region] = [];
+    });
+    this.applyFilters();
   }
 
   querySearch(): void {
-    this.applyFilters(); // Apply filters when search query changes
-    console.log("Searching for:", this.searchQuery);
-    console.log("Selected Subregions:", this.selectedSubregions);
-    console.log("Selected Subcategories:", this.selectedSubcategories);
+    this.applyFilters();
+    console.log("Qidiruv:", this.searchQuery); // "Search" in Uzbek
+    console.log("Tanlangan hududlar:", this.selectedSubregions); // "Selected regions" in Uzbek
+    console.log("Tanlangan subkategoriyalar:", this.selectedSubcategories); // "Selected subcategories" in Uzbek
   }
 
   applyFilters(): void {
-    // Send filter criteria to FilterService
     this.filterService.setSearchQuery(this.searchQuery);
     this.filterService.setSelectedCategories(this.selectedSubcategories);
     this.filterService.setSelectedLocations(this.selectedSubregions);
@@ -307,7 +217,7 @@ export class HeaderComponent {
       if (cat !== category) cat.isOpen = false;
     });
     category.isOpen = !category.isOpen;
-    console.log(`Selected: ${category.name}`);
+    console.log(`Tanlandi: ${category.name}`); // "Selected" in Uzbek
   }
 
   selectSubcategoryLarge(categoryName: string, subcategoryName: string, event: Event): void {
@@ -316,14 +226,13 @@ export class HeaderComponent {
     const selectedCategory = this.categories.find(cat => cat.name === categoryName);
     if (selectedCategory) {
       selectedCategory.isOpen = true;
-      // Toggle subcategory selection
       if (this.selectedSubcategories.includes(subcategoryName)) {
         this.selectedSubcategories = this.selectedSubcategories.filter(sub => sub !== subcategoryName);
       } else {
         this.selectedSubcategories.push(subcategoryName);
       }
-      this.applyFilters(); // Apply filters when subcategory changes
-      console.log(`Selected: ${categoryName} -> ${subcategoryName}`);
+      this.applyFilters();
+      console.log(`Tanlandi: ${categoryName} -> ${subcategoryName}`);
     }
   }
 
@@ -352,18 +261,16 @@ export class HeaderComponent {
 
   selectSubcategory(categoryName: string, subcategoryName: string, event: Event): void {
     event.stopPropagation();
-    // Toggle subcategory selection
     if (this.selectedSubcategories.includes(subcategoryName)) {
       this.selectedSubcategories = this.selectedSubcategories.filter(sub => sub !== subcategoryName);
     } else {
       this.selectedSubcategories.push(subcategoryName);
     }
-    this.applyFilters(); // Apply filters when subcategory changes
-    console.log(`Category: ${categoryName}, Subcategory: ${subcategoryName}`);
+    this.applyFilters();
+    console.log(`Kategoriya: ${categoryName}, Subkategoriya: ${subcategoryName}`);
   }
 
   goToCreateDeal(): void {
     this.router.navigate(['/createdeal']);
   }
-
 }
