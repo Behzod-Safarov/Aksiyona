@@ -25,6 +25,7 @@ export class AuthService {
     }
   }
 
+  
   private initializeUser(): void {
     const token = localStorage.getItem('token');
     console.log('Token from localStorage:', token); // Debug the token value
@@ -85,6 +86,12 @@ export class AuthService {
   setUserRole(userRole: string | null): void {
     this.userRoleSubject.next(userRole);
   }
+ 
+  setRedirectUrl(url: string): void {
+    if (this.isBrowser) {
+      localStorage.setItem('redirectUrl', url);
+    }
+  }
 
   signOut(): void {
     if (this.isBrowser) {
@@ -96,9 +103,50 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    if (!this.isBrowser) {
-      return false;
+    return this.userIdSubject.value !== null;
+  }
+  isAdmin(): boolean {
+    return this.userRoleSubject.value === 'Admin';
+  }
+  isUser(): boolean {
+    return this.userRoleSubject.value === 'User';
+  }
+  isBusiness(): boolean {
+    return this.userRoleSubject.value === 'Business';
+  }
+  getUserId(): number | null {
+    return this.userIdSubject.value;
+  }
+  getUserRole(): string | null {
+    return this.userRoleSubject.value;
+  }
+  getToken(): string | null {
+    return this.isBrowser ? localStorage.getItem('token') : null;
+  }
+  setToken(token: string): void {
+    if (this.isBrowser) {
+      localStorage.setItem('token', token);
     }
-    return !!localStorage.getItem('token');
+  }
+  clearToken(): void {
+    if (this.isBrowser) {
+      localStorage.removeItem('token');
+    }
+  }
+  getRedirectUrl(): string | null {
+    return this.isBrowser ? localStorage.getItem('redirectUrl') : null;
+  }
+  clearRedirectUrl(): void {
+    if (this.isBrowser) {
+      localStorage.removeItem('redirectUrl');
+    }
+  }
+  getUserName(): string | null {
+    const token = this.getToken();
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || null;
+    }
+    return null;
   }
 }

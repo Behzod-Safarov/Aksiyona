@@ -11,6 +11,7 @@ import { authGuard } from './app/features/auth/auth.guard';
 import { ErrorComponent } from './app/shared/components/error/error.component';
 import { DealcreateComponent } from './app/features/bussiness/dealcreate/dealcreate.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { CabinetComponent } from './app/features/bussiness/cabinet/cabinet.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'liked', component: LikedComponent, canActivate: [authGuard] },
   { path: 'createdeal', component: DealcreateComponent},
+  {path: 'cabinet', component: CabinetComponent, canActivate: [authGuard]},
   { path: 'error', component: ErrorComponent },
   { path: '**', component: ErrorComponent, data: { errorCode: '404', message: 'Page Not Found' } },
 ];

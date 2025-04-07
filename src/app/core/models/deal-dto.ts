@@ -21,6 +21,7 @@ export interface DealDto {
   location?: string;
   region?: string;
   subRegion?: string;
+  userId?: number;
 }
 
 

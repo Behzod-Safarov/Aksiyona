@@ -45,12 +45,21 @@ export class ApiService {
     return this.http.get<DealDto>(`${this.apiBaseUrl}/Deal/${id}`);
   }
 
+  getDealByUserId(userId: number): Observable<DealDto[]> {
+    return this.http.get<DealDto[]>(`${this.apiBaseUrl}/Deal/getByUserId/${userId}`);
+  }
+
   addComment(comment: CommentDto): Observable<CommentDto> {
     return this.http.post<CommentDto>(`${this.apiBaseUrl}/comment`, comment);
   }
 
-  updateDeal(id: number, deal: DealDto): Observable<DealDto> {
-    return this.http.put<DealDto>(`${this.apiBaseUrl}/deal/${id}`, deal);
+  // api.service.ts
+  updateDeal(id: number, deal: DealDto): Observable<DealDto> {  // Revert to DealDto
+    return this.http.put<DealDto>(`${this.apiBaseUrl}/Deal/${id}`, deal);
+  }
+ 
+  updateDealWithFormData(id: number, deal: FormData): Observable<DealDto> {
+    return this.http.put<DealDto>(`${this.apiBaseUrl}/Deal/${id}`, deal);
   }
 
   updateReview(id: string, reviewData: UpdateReviewDto): Observable<DealDto> {
@@ -79,7 +88,9 @@ export class ApiService {
   addDeal(deal: FormData): Observable<DealDto> {
     return this.http.post<DealDto>(`${this.apiBaseUrl}/Deal`, deal);
   }
-
+  removeDeal(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/deal/${id}`);
+  }
   getCategories(): Observable<CategoryDto[]> {
     return this.http.get<CategoryDto[]>(`${this.apiBaseUrl}/Category`);
   }

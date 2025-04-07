@@ -1,0 +1,173 @@
+<div class="cabinet-container">
+    <!-- Header -->
+    <header class="cabinet-header">
+      <h1>My Deals</h1>
+      <div class="actions">
+        <button (click)="addNewDeal()" class="btn btn-primary">
+          <span class="material-icons">add</span> Add New Deal
+        </button>
+        <button (click)="logout()" class="btn btn-secondary">
+          <span class="material-icons">logout</span> Logout
+        </button>
+      </div>
+    </header>
+  
+    <!-- Messages -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      <span class="material-icons">error</span> {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success">
+      <span class="material-icons">check_circle</span> {{ successMessage }}
+    </div>
+  
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div> Loading...
+    </div>
+  
+    <!-- Deals List -->
+    <div *ngIf="!editingDeal" class="deals-list">
+      <div *ngFor="let deal of userDeals$ | async" class="deal-card">
+        <div class="deal-image-wrapper">
+          <img [src]="deal.image" alt="{{ deal.title }}" class="deal-image" />
+          <div class="deal-discount">{{ deal.discount }}% OFF</div>
+        </div>
+        <div class="deal-info">
+          <h3>{{ deal.title }}</h3>
+          <p class="price">
+            <span class="current-price">${{ deal.price }}</span>
+            <span class="old-price">${{ deal.oldPrice }}</span>
+          </p>
+          <p class="location"><span class="material-icons">location_on</span> {{ deal.location }}</p>
+          <p class="category"><span class="material-icons">category</span> {{ deal.category }}</p>
+          <p class="expiry"><span class="material-icons">event</span> Expires: {{ deal.expiryDate | date: 'mediumDate' }}</p>
+        </div>
+        <div class="deal-actions">
+          <button (click)="startEditing(deal)" class="btn btn-edit">
+            <span class="material-icons">edit</span> Edit
+          </button>
+          <button (click)="deleteDeal(deal.id)" class="btn btn-delete">
+            <span class="material-icons">delete</span> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Edit Deal Form -->
+    <div *ngIf="editingDeal" class="edit-form">
+      <h2>Edit Deal</h2>
+  
+      <!-- Deal Details -->
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input
+          id="title"
+          type="text"
+          [(ngModel)]="editingDeal.title"
+          class="form-control"
+          placeholder="Enter deal title"
+          required
+        />
+      </div>
+  
+      <div class="form-group">
+        <label for="price">Price</label>
+        <input
+          id="price"
+          type="number"
+          [(ngModel)]="editingDeal.price"
+          (input)="calculateDiscount()"
+          class="form-control"
+          placeholder="Enter price"
+          required
+        />
+      </div>
+  
+      <div class="form-group">
+        <label for="oldPrice">Old Price</label>
+        <input
+          id="oldPrice"
+          type="number"
+          [(ngModel)]="editingDeal.oldPrice"
+          (input)="calculateDiscount()"
+          class="form-control"
+          placeholder="Enter old price"
+          required
+        />
+      </div>
+  
+      <div class="form-group">
+        <label for="discount">Discount (%)</label>
+        <input
+          id="discount"
+          type="number"
+          [(ngModel)]="editingDeal.discount"
+          class="form-control"
+          readonly
+        />
+      </div>
+  
+      <div class="form-group">
+        <label for="expiryDate">Expiry Date</label>
+        <input
+          id="expiryDate"
+          type="date"
+          [(ngModel)]="editingDeal.expiryDate"
+          class="form-control"
+          required
+        />
+      </div>
+  
+      <!-- Category Selection -->
+      <div class="form-group">
+        <label>Category</label>
+        <div *ngFor="let category of categories" class="category-item">
+          <div class="category-header" (click)="toggleCategory(category)">
+            <span>{{ category.name }}</span>
+            <span class="toggle-icon">{{ category.isOpen ? '▼' : '▶' }}</span>
+          </div>
+          <div *ngIf="category.isOpen" class="subcategories">
+            <div
+              *ngFor="let sub of category.subcategories"
+              (click)="selectCategory(category.name, sub.name, sub.id)"
+              class="subcategory-item"
+              [class.selected]="editingDeal.subcategoryId === sub.id"
+            >
+              {{ sub.name }}
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label for="images">Images (Max {{ maxImages }})</label>
+        <input
+          id="images"
+          type="file"
+          multiple
+          (change)="onImageUpload($event)"
+          accept="image/*"
+          class="form-control"
+        />
+        <div class="image-preview">
+          <div *ngFor="let image of previewImages; let i = index" class="image-container">
+            <img [src]="image" alt="Preview" class="preview-image" />
+            <button (click)="removeImage(i)" class="remove-image">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button (click)="saveDeal()" class="btn btn-primary" [disabled]="isLoading">
+          <span class="material-icons">save</span> Save
+        </button>
+        <button (click)="cancelEditing()" class="btn btn-secondary" [disabled]="isLoading">
+          <span class="material-icons">cancel</span> Cancel
+        </button>
+      </div>
+    </div>
+  </div>

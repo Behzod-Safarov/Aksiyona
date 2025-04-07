@@ -5,6 +5,7 @@ import { DealDto } from '../../../core/models/deal-dto';
 import { Router } from '@angular/router';
 import { SubcategoryDto } from '../../../core/models/sub-category-dto';
 import { ApiService } from '../../../services/api.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-dealcreate',
@@ -15,12 +16,12 @@ import { ApiService } from '../../../services/api.service';
 })
 export class DealcreateComponent implements OnInit {
   categories: { name: string; isOpen: boolean; subcategories: SubcategoryDto[] }[] = [];
-  locations: { region: string; subregions: string[]; expanded: boolean }[] = [];
+  locations: { region: string; subregions: string[]; enhanced: boolean }[] = [];
 
   currentStep: 'location' | 'category' | 'deal' | 'confirmation' | 'success' = 'location';
   selectedLocation: { region?: string; subRegion?: string; isOnline: boolean } = { isOnline: false };
   selectedCategory: { name: string; subcategory: string; subcategoryId: number } = { name: '', subcategory: '', subcategoryId: 0 };
-  deal: DealDto = {
+  deal: DealDto & { userId?: number } = {  // Extended DealDto with userId
     id: 0,
     image: '',
     title: '',
@@ -38,6 +39,7 @@ export class DealcreateComponent implements OnInit {
     comments: [],
     notifications: [],
     location: '',
+    userId: undefined  // Added userId
   };
 
   showSubregions: string | null = null;
@@ -46,12 +48,35 @@ export class DealcreateComponent implements OnInit {
   maxImages = 4;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+  userId: number | null = null;
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.loadCategories();
-    this.loadLocations();
+    // Check if user is logged in and get userId
+    this.authService.userId$.subscribe({
+      next: (userId) => {
+        if (!userId) {
+
+          localStorage.setItem('redirectUrl', this.router.url);  // Store the current URL
+          this.errorMessage = 'You must be logged in to create a deal';
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.userId = userId;
+        this.deal.userId = userId;  // Set the userId for the deal
+        this.loadCategories();
+        this.loadLocations();
+      },
+      error: (error) => {
+        console.error('Error getting user ID:', error);
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   loadCategories() {
@@ -76,7 +101,7 @@ export class DealcreateComponent implements OnInit {
         this.locations = locations.map(loc => ({
           region: loc.region,
           subregions: loc.subregions,
-          expanded: false
+          enhanced: false  // Corrected property name to 'enhanced'
         }));
       },
       error: (error) => {
@@ -99,12 +124,14 @@ export class DealcreateComponent implements OnInit {
 
   selectLocation(region: string, subRegion?: string) {
     this.selectedLocation = { region, subRegion, isOnline: false };
+    this.deal.location = subRegion ? `${region}, ${subRegion}` : region;
     this.currentStep = 'category';
     this.showSubregions = null;
   }
 
   selectOnlineStore() {
     this.selectedLocation = { isOnline: true };
+    this.deal.location = 'Online Store';
     this.currentStep = 'category';
     this.showSubregions = null;
   }
@@ -153,7 +180,6 @@ export class DealcreateComponent implements OnInit {
     }
   }
 
-
   goBack() {
     if (this.currentStep === 'category') {
       this.currentStep = 'location';
@@ -165,10 +191,20 @@ export class DealcreateComponent implements OnInit {
   }
 
   goToConfirmation() {
+    if (!this.deal.title || !this.deal.price || !this.deal.oldPrice || !this.deal.expiryDate) {
+      this.errorMessage = 'Please fill in all required fields';
+      return;
+    }
     this.currentStep = 'confirmation';
   }
 
   createDeal() {
+    if (!this.userId) {
+      this.errorMessage = 'You must be logged in to create a deal';
+      this.router.navigate(['/login']);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', this.deal.title);
     formData.append('price', this.deal.price.toString());
@@ -179,15 +215,14 @@ export class DealcreateComponent implements OnInit {
     formData.append('expiryDate', this.deal.expiryDate);
     formData.append('liked', this.deal.liked.toString());
     formData.append('subcategoryId', this.deal.subcategoryId.toString());
-    formData.append('stock', '100');
+    formData.append('stock', '100');  // Assuming default stock
     formData.append('createdAt', this.deal.createdAt);
     formData.append('dealStartingDate', this.deal.dealStartingDate);
-    formData.append('location', this.selectedLocation.isOnline 
-      ? 'Online Store' 
-      : `${this.deal.location}`);
+    formData.append('location', this.deal.location || '');
+    formData.append('userId', this.userId.toString());  // Add userId to form data
 
-    this.imageFiles.forEach((file, index) => {
-      formData.append(`images`, file, file.name);
+    this.imageFiles.forEach((file) => {
+      formData.append('images', file, file.name);
     });
 
     this.apiService.addDeal(formData).subscribe({
@@ -235,6 +270,7 @@ export class DealcreateComponent implements OnInit {
       comments: [],
       notifications: [],
       location: '',
+      userId: this.userId ?? undefined  // Preserve userId, convert null to undefined
     };
     this.previewImages = [];
     this.imageFiles = [];

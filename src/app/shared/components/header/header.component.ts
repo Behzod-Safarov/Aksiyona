@@ -138,7 +138,7 @@ export class HeaderComponent {
   }
 
   hertIconClicked(): void {
-    this.router.navigate(['liked']);
+    this.router.navigate(['cabinet']);
     console.log("Heart icon clicked");
   }
 
