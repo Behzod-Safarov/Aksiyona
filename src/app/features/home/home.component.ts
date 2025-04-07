@@ -30,9 +30,9 @@ interface Deal {
 @Component({
   selector: 'app-home',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  imports: [CommonModule]
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly BASE_URL = 'http://localhost:5251';

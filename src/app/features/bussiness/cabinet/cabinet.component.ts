@@ -23,10 +23,11 @@ export class CabinetComponent implements OnInit {
   isLoading = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
-  private readonly BASE_URL = 'http://localhost:5251';
+  public BASE_URL = 'http://localhost:5251';
   categories: { name: string; isOpen: boolean; subcategories: SubcategoryDto[] }[] = [];
   previewImages: string[] = [];
   imageFiles: File[] = [];
+  imagesToKeep: string[] = [];
   maxImages = 4;
 
   constructor(
@@ -34,7 +35,6 @@ export class CabinetComponent implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {
-    // Initialize userDeals$ observable to fetch deals for the logged-in user
     this.userDeals$ = this.authService.userId$.pipe(
       switchMap((userId: number | null): Observable<DealDto[]> => {
         if (!userId) {
@@ -47,9 +47,7 @@ export class CabinetComponent implements OnInit {
           map((deals: DealDto[]) => {
             return deals.map(deal => ({
               ...deal,
-              image: deal.image
-                ? `${this.BASE_URL}${deal.image.split(',').map(img => img.trim())[0]}`
-                : `${this.BASE_URL}/images/placeholder.jpg`
+              image: deal.image || ''
             }));
           })
         );
@@ -58,13 +56,13 @@ export class CabinetComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Redirect to login if the user is not logged in
     if (!this.authService.isLoggedIn()) {
-      localStorage.setItem('redirectUrl', this.router.url); // Store the current URL for redirect after login
+      localStorage.setItem('redirectUrl', this.router.url);
       this.router.navigate(['/login']);
       return;
     }
     this.loadCategories();
+    localStorage.setItem('isHeaderVisible', 'false'); // Set header visibility to true
   }
 
   loadCategories() {
@@ -96,18 +94,31 @@ export class CabinetComponent implements OnInit {
 
   startEditing(deal: DealDto): void {
     this.editingDeal = { ...deal };
-    this.previewImages = deal.image
-      ? deal.image.split(',').map(img => `${this.BASE_URL}${img.trim()}`)
-      : [];
+    console.log('Editing deal:', deal);
+    console.log('Deal image string:', deal.image);
+
+    if (deal.image && deal.image.trim()) {
+      const imagePaths = deal.image.split(',').map(img => img.trim()).filter(img => img);
+      this.imagesToKeep = [...imagePaths];
+      this.previewImages = imagePaths.map(img => `${this.BASE_URL}${img}`);
+    } else {
+      this.imagesToKeep = [];
+      this.previewImages = [];
+    }
+
     this.imageFiles = [];
     this.errorMessage = null;
     this.successMessage = null;
+
+    console.log('Images to keep:', this.imagesToKeep);
+    console.log('Preview images:', this.previewImages);
   }
 
   cancelEditing(): void {
     this.editingDeal = null;
     this.previewImages = [];
     this.imageFiles = [];
+    this.imagesToKeep = [];
     this.errorMessage = null;
     this.successMessage = null;
   }
@@ -115,10 +126,13 @@ export class CabinetComponent implements OnInit {
   onImageUpload(event: Event) {
     const files = (event.target as HTMLInputElement).files;
     if (files) {
-      const remainingSlots = this.maxImages - this.imageFiles.length;
-      const filesToProcess = Array.from(files).slice(0, remainingSlots);
+      const totalImages = this.imagesToKeep.length + this.imageFiles.length + files.length;
+      if (totalImages > this.maxImages) {
+        this.errorMessage = `Maximum ${this.maxImages} images allowed. You can only add ${this.maxImages - (this.imagesToKeep.length + this.imageFiles.length)} more images.`;
+        return;
+      }
 
-      filesToProcess.forEach(file => {
+      Array.from(files).forEach(file => {
         this.imageFiles.push(file);
         const reader = new FileReader();
         reader.onload = () => {
@@ -126,19 +140,30 @@ export class CabinetComponent implements OnInit {
         };
         reader.readAsDataURL(file);
       });
-
-      if (files.length > remainingSlots) {
-        this.errorMessage = `Maximum ${this.maxImages} images allowed. Excess images ignored.`;
-      }
     }
   }
 
   removeImage(index: number) {
-    this.previewImages.splice(index, 1);
-    if (index < this.imageFiles.length) {
-      this.imageFiles.splice(index, 1);
+    const imageUrl = this.previewImages[index];
+    if (imageUrl.startsWith(this.BASE_URL)) {
+      const imagePath = imageUrl.replace(this.BASE_URL, '');
+      const keepIndex = this.imagesToKeep.indexOf(imagePath);
+      if (keepIndex !== -1) {
+        this.imagesToKeep.splice(keepIndex, 1);
+      }
+    } else {
+      const fileIndex = this.previewImages.length - this.imageFiles.length + index - this.imagesToKeep.length;
+      if (fileIndex >= 0 && fileIndex < this.imageFiles.length) {
+        this.imageFiles.splice(fileIndex, 1);
+      }
     }
+    this.previewImages.splice(index, 1);
     this.errorMessage = null;
+  }
+
+  onImageError(event: Event, imageUrl: string): void {
+    console.error(`Failed to load image: ${imageUrl}`);
+    (event.target as HTMLImageElement).src = `${this.BASE_URL}/images/placeholder.jpg`;
   }
 
   calculateDiscount() {
@@ -154,8 +179,7 @@ export class CabinetComponent implements OnInit {
       this.errorMessage = 'Cannot save deal. User or deal data is missing.';
       return;
     }
-  
-    // Validate required fields
+
     if (
       !this.editingDeal.title ||
       !this.editingDeal.price ||
@@ -166,38 +190,41 @@ export class CabinetComponent implements OnInit {
       this.errorMessage = 'Please fill in all required fields (title, price, old price, expiry date, category).';
       return;
     }
-  
+
     this.isLoading = true;
     this.errorMessage = null;
     this.successMessage = null;
-  
+
     const formData = new FormData();
-    formData.append('Id', this.editingDeal.id.toString()); // Capitalize to match C# property
-    formData.append('Title', this.editingDeal.title); // Capitalize
-    formData.append('Price', this.editingDeal.price.toString()); // Capitalize
-    formData.append('OldPrice', this.editingDeal.oldPrice?.toString() || '0'); // Capitalize
-    formData.append('Discount', this.editingDeal.discount.toString()); // Capitalize
-    formData.append('Rating', this.editingDeal.rating.toString()); // Capitalize
-    formData.append('Reviews', this.editingDeal.reviews.toString()); // Capitalize
-    formData.append('ExpiryDate', new Date(this.editingDeal.expiryDate).toISOString()); // Capitalize
-    formData.append('Liked', this.editingDeal.liked.toString()); // Capitalize
-    formData.append('SubcategoryId', this.editingDeal.subcategoryId.toString()); // Capitalize
-    formData.append('Stock', this.editingDeal.stock?.toString() || '100'); // Capitalize
-    formData.append('CreatedAt', new Date(this.editingDeal.createdAt).toISOString()); // Capitalize
-    formData.append('DealStartingDate', new Date(this.editingDeal.dealStartingDate).toISOString()); // Capitalize
-    formData.append('Location', this.editingDeal.location || ''); // Capitalize
-    formData.append('UserId', this.userId.toString()); // Capitalize
-  
-    // Add images if any
-    this.imageFiles.forEach((file) => {
-      formData.append('Images', file, file.name); // Capitalize to match C# property
+    formData.append('Id', this.editingDeal.id.toString());
+    formData.append('Title', this.editingDeal.title);
+    formData.append('Price', this.editingDeal.price.toString());
+    formData.append('OldPrice', this.editingDeal.oldPrice?.toString() || '0');
+    formData.append('Discount', this.editingDeal.discount.toString());
+    formData.append('Rating', this.editingDeal.rating.toString());
+    formData.append('Reviews', this.editingDeal.reviews.toString());
+    formData.append('ExpiryDate', new Date(this.editingDeal.expiryDate).toISOString());
+    formData.append('Liked', this.editingDeal.liked.toString());
+    formData.append('SubcategoryId', this.editingDeal.subcategoryId.toString());
+    formData.append('Stock', this.editingDeal.stock?.toString() || '100');
+    formData.append('CreatedAt', new Date(this.editingDeal.createdAt).toISOString());
+    formData.append('DealStartingDate', new Date(this.editingDeal.dealStartingDate).toISOString());
+    formData.append('Location', this.editingDeal.location || '');
+    formData.append('UserId', this.userId.toString());
+
+    this.imagesToKeep.forEach((imagePath, index) => {
+      formData.append(`ImagesToKeep[${index}]`, imagePath);
     });
-  
-    // Log FormData for debugging
+
+    this.imageFiles.forEach((file) => {
+      formData.append('ImagesToAdd', file, file.name);
+    });
+
+    console.log('Sending FormData for update:');
     for (const pair of (formData as any).entries()) {
       console.log(`${pair[0]}: ${pair[1]}`);
     }
-  
+
     this.apiService.updateDealWithFormData(this.editingDeal.id, formData).subscribe({
       next: (updatedDeal: DealDto) => {
         this.isLoading = false;
@@ -205,6 +232,7 @@ export class CabinetComponent implements OnInit {
         this.editingDeal = null;
         this.previewImages = [];
         this.imageFiles = [];
+        this.imagesToKeep = [];
         this.refreshDeals();
       },
       error: (error: any) => {
@@ -251,9 +279,7 @@ export class CabinetComponent implements OnInit {
       map((deals: DealDto[]) => {
         return deals.map(deal => ({
           ...deal,
-          image: deal.image
-            ? `${this.BASE_URL}${deal.image.split(',').map(img => img.trim())[0]}`
-            : `${this.BASE_URL}/images/placeholder.jpg`
+          image: deal.image || ''
         }));
       })
     );

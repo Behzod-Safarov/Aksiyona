@@ -26,7 +26,7 @@ export class AuthService {
   }
 
   
-  private initializeUser(): void {
+  public initializeUser(): void {
     const token = localStorage.getItem('token');
     console.log('Token from localStorage:', token); // Debug the token value
     if (token && typeof token === 'string' && token.includes('.')) {

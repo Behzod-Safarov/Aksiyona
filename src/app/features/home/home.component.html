@@ -4,18 +4,18 @@
     <div class="card loading" *ngIf="loading && deals.length === 0" role="status" aria-live="polite">
       <div class="image-wrapper">
         <div class="spinner"></div>
-        <span class="visually-hidden">Loading deals...</span>
+        <span class="visually-hidden">Kelishuvlar yuklanmoqda...</span>
       </div>
       <div class="card-content">
-        <h3>Loading...</h3>
-        <p class="price">Fetching deals...</p>
+        <h3>Yuklanmoqda...</h3>
+        <p class="price">Kelishuvlar olinmoqda...</p>
       </div>
     </div>
 
     <!-- Error State -->
     <div class="card error" *ngIf="!loading && error && deals.length === 0" role="alert" aria-live="assertive">
       <div class="card-content">
-        <h3>Oops!</h3>
+        <h3>Afsus!</h3>
         <p>{{ error }}</p>
       </div>
     </div>
@@ -28,11 +28,11 @@
         (click)="openDeal(deal)"
         tabindex="0"
         (keydown.enter)="openDeal(deal)"
-        [attr.aria-label]="'View deal: ' + deal.title"
+        [attr.aria-label]="'Kelishuvni ko\'rish: ' + deal.title"
       >
         <div class="image-wrapper">
           <img [src]="deal.image" [alt]="deal.title" loading="lazy" />
-          <span class="discount-badge" *ngIf="deal.discount >= 50">Hot Deal!</span>
+          <span class="discount-badge" *ngIf="deal.discount >= 50">Katta chegirma!</span>
         </div>
         <div class="card-content">
           <h3>{{ deal.title }}</h3>
@@ -43,13 +43,13 @@
           </p>
           <p class="rating">
             <span *ngFor="let star of [1, 2, 3, 4, 5]" [class.filled]="star <= deal.rating">★</span>
-            {{ deal.rating.toFixed(1) }} ({{ deal.reviews | number }} reviews)
+            {{ deal.rating.toFixed(1) }} ({{ deal.reviews | number }} ko'rildi)
           </p>
           <p class="stock" [class.low]="deal.stock <= 10">
-            {{ deal.stock }} left
+            {{ deal.stock }} qoldi
           </p>
           <p class="time-left" [class.expired]="deal.timeLeft === 'Expired'">
-            ⏳ {{ deal.timeLeft ? (deal.timeLeft !== 'Expired' ? 'Time left: ' + deal.timeLeft : '❌ Deal Expired') : 'Calculating...' }}
+            ⏳ {{ deal.timeLeft ? (deal.timeLeft !== 'Expired' ? 'Qolgan vaqt: ' + deal.timeLeft : '❌ Kelishuv muddati tugadi') : 'Hisoblanmoqda...' }}
           </p>
         </div>
         <svg
@@ -58,7 +58,7 @@
           (click)="toggleLike($event, i)"
           (keydown.enter)="toggleLike($event, i)"
           tabindex="0"
-          [attr.aria-label]="'Toggle like for ' + deal.title"
+          [attr.aria-label]="'Yoqtirishni o\'zgartirish: ' + deal.title"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
         >
@@ -74,7 +74,7 @@
       <!-- Loading More Deals State -->
       <div class="card loading" *ngIf="loading && deals.length > 0" role="status" aria-live="polite">
         <div class="spinner"></div>
-        <span>Loading more deals...</span>
+        <span>Yana kelishuvlar yuklanmoqda...</span>
       </div>
 
       <!-- Sentinel for Infinite Scroll -->

@@ -12,14 +12,16 @@ import { ErrorComponent } from './app/shared/components/error/error.component';
 import { DealcreateComponent } from './app/features/bussiness/dealcreate/dealcreate.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { CabinetComponent } from './app/features/bussiness/cabinet/cabinet.component';
+import { AdminComponent } from './app/features/auth/pages/admin/admin.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'deal/:id', component: DealDetailsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'liked', component: LikedComponent, canActivate: [authGuard] },
-  { path: 'createdeal', component: DealcreateComponent},
   {path: 'cabinet', component: CabinetComponent, canActivate: [authGuard]},
+  {path: 'admin', component: AdminComponent, canActivate: [authGuard]},
+  { path: 'createdeal', component: DealcreateComponent},
   { path: 'error', component: ErrorComponent },
   { path: '**', component: ErrorComponent, data: { errorCode: '404', message: 'Page Not Found' } },
 ];

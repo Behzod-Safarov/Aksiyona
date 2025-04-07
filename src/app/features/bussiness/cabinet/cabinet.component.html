@@ -1,36 +1,40 @@
 <div class="cabinet-container">
     <!-- Header -->
     <header class="cabinet-header">
-      <h1>My Deals</h1>
+      <h1>Mening Kelishuvlarim</h1>
       <div class="actions">
-        <button (click)="addNewDeal()" class="btn btn-primary">
-          <span class="material-icons">add</span> Add New Deal
+        <button (click)="addNewDeal()" class="btn btn-primary" aria-label="Yangi Kelishuv Qo'shish">
+          <span class="material-icons">add</span> Yangi Kelishuv Qo'shish
         </button>
-        <button (click)="logout()" class="btn btn-secondary">
-          <span class="material-icons">logout</span> Logout
+        <button (click)="logout()" class="btn btn-secondary" aria-label="Chiqish">
+          <span class="material-icons">logout</span> Chiqish
         </button>
       </div>
     </header>
   
     <!-- Messages -->
     <div *ngIf="errorMessage" class="alert alert-danger">
-      <span class="material-icons">error</span> {{ errorMessage }}
+      <span class="material-icons">error</span> {{ errorMessage }} <!-- Error message can remain dynamic -->
     </div>
     <div *ngIf="successMessage" class="alert alert-success">
-      <span class="material-icons">check_circle</span> {{ successMessage }}
+      <span class="material-icons">check_circle</span> {{ successMessage }} <!-- Success message can remain dynamic -->
     </div>
   
     <!-- Loading State -->
     <div *ngIf="isLoading" class="loading">
-      <div class="spinner"></div> Loading...
+      <div class="spinner"></div> Yuklanmoqda...
     </div>
   
     <!-- Deals List -->
     <div *ngIf="!editingDeal" class="deals-list">
       <div *ngFor="let deal of userDeals$ | async" class="deal-card">
         <div class="deal-image-wrapper">
-          <img [src]="deal.image" alt="{{ deal.title }}" class="deal-image" />
-          <div class="deal-discount">{{ deal.discount }}% OFF</div>
+          <img
+            [src]="deal.image ? (BASE_URL + deal.image.split(',')[0].trim()) : (BASE_URL + '/images/placeholder.jpg')"
+            alt="{{ deal.title }}"
+            class="deal-image"
+          />
+          <div class="deal-discount">{{ deal.discount }}% Chegirma</div>
         </div>
         <div class="deal-info">
           <h3>{{ deal.title }}</h3>
@@ -40,14 +44,14 @@
           </p>
           <p class="location"><span class="material-icons">location_on</span> {{ deal.location }}</p>
           <p class="category"><span class="material-icons">category</span> {{ deal.category }}</p>
-          <p class="expiry"><span class="material-icons">event</span> Expires: {{ deal.expiryDate | date: 'mediumDate' }}</p>
+          <p class="expiry"><span class="material-icons">event</span> Amal qilish muddati: {{ deal.expiryDate | date: 'mediumDate' }}</p>
         </div>
         <div class="deal-actions">
-          <button (click)="startEditing(deal)" class="btn btn-edit">
-            <span class="material-icons">edit</span> Edit
+          <button (click)="startEditing(deal)" class="btn btn-edit" aria-label="Kelishuvni Tahrirlash">
+            <span class="material-icons">edit</span> Tahrirlash
           </button>
-          <button (click)="deleteDeal(deal.id)" class="btn btn-delete">
-            <span class="material-icons">delete</span> Delete
+          <button (click)="deleteDeal(deal.id)" class="btn btn-delete" aria-label="Kelishuvni O'chirish">
+            <span class="material-icons">delete</span> O'chirish
           </button>
         </div>
       </div>
@@ -55,74 +59,79 @@
   
     <!-- Edit Deal Form -->
     <div *ngIf="editingDeal" class="edit-form">
-      <h2>Edit Deal</h2>
+      <h2>Kelishuvni Tahrirlash</h2>
   
       <!-- Deal Details -->
       <div class="form-group">
-        <label for="title">Title</label>
+        <label for="title">Sarlavha</label>
         <input
           id="title"
           type="text"
           [(ngModel)]="editingDeal.title"
           class="form-control"
-          placeholder="Enter deal title"
+          placeholder="Kelishuv sarlavhasini kiriting"
           required
+          aria-required="true"
         />
       </div>
   
       <div class="form-group">
-        <label for="price">Price</label>
+        <label for="price">Narx</label>
         <input
           id="price"
           type="number"
           [(ngModel)]="editingDeal.price"
           (input)="calculateDiscount()"
           class="form-control"
-          placeholder="Enter price"
+          placeholder="Narxni kiriting"
           required
+          aria-required="true"
         />
       </div>
   
       <div class="form-group">
-        <label for="oldPrice">Old Price</label>
+        <label for="oldPrice">Eski Narx</label>
         <input
           id="oldPrice"
           type="number"
           [(ngModel)]="editingDeal.oldPrice"
           (input)="calculateDiscount()"
           class="form-control"
-          placeholder="Enter old price"
+          placeholder="Eski narxni kiriting"
           required
+          aria-required="true"
         />
       </div>
   
       <div class="form-group">
-        <label for="discount">Discount (%)</label>
+        <label for="discount">Chegirma (%)</label>
         <input
           id="discount"
           type="number"
           [(ngModel)]="editingDeal.discount"
           class="form-control"
           readonly
+          aria-readonly="true"
         />
       </div>
   
       <div class="form-group">
-        <label for="expiryDate">Expiry Date</label>
+        <label for="expiryDate">Amal qilish muddati</label>
         <input
           id="expiryDate"
           type="date"
           [(ngModel)]="editingDeal.expiryDate"
           class="form-control"
           required
+          aria-required="true"
         />
       </div>
   
       <!-- Category Selection -->
       <div class="form-group">
-        <label>Category</label>
+        <label>Kategoriya</label>
         <div *ngFor="let category of categories" class="category-item">
-          <div class="category-header" (click)="toggleCategory(category)">
+          <div class="category-header" [class.open]="category.isOpen" (click)="toggleCategory(category)">
             <span>{{ category.name }}</span>
             <span class="toggle-icon">{{ category.isOpen ? '▼' : '▶' }}</span>
           </div>
@@ -141,7 +150,7 @@
   
       <!-- Image Upload -->
       <div class="form-group">
-        <label for="images">Images (Max {{ maxImages }})</label>
+        <label for="images">Rasmlar (Maksimum {{ maxImages }})</label>
         <input
           id="images"
           type="file"
@@ -151,9 +160,10 @@
           class="form-control"
         />
         <div class="image-preview">
+          <div *ngIf="previewImages.length === 0" class="no-images">Ko'rsatiladigan rasmlar yo'q.</div>
           <div *ngFor="let image of previewImages; let i = index" class="image-container">
-            <img [src]="image" alt="Preview" class="preview-image" />
-            <button (click)="removeImage(i)" class="remove-image">
+            <img [src]="image" alt="Oldindan ko'rish" class="preview-image" (error)="onImageError($event, image)" />
+            <button (click)="removeImage(i)" class="remove-image" aria-label="Rasmni O'chirish">
               <span class="material-icons">close</span>
             </button>
           </div>
@@ -162,11 +172,11 @@
   
       <!-- Form Actions -->
       <div class="form-actions">
-        <button (click)="saveDeal()" class="btn btn-primary" [disabled]="isLoading">
-          <span class="material-icons">save</span> Save
+        <button (click)="saveDeal()" class="btn btn-primary" [disabled]="isLoading" aria-label="Kelishuvni Saqlash">
+          <span class="material-icons">save</span> Saqlash
         </button>
-        <button (click)="cancelEditing()" class="btn btn-secondary" [disabled]="isLoading">
-          <span class="material-icons">cancel</span> Cancel
+        <button (click)="cancelEditing()" class="btn btn-secondary" [disabled]="isLoading" aria-label="Tahrirlashni Bekor Qilish">
+          <span class="material-icons">cancel</span> Bekor Qilish
         </button>
       </div>
     </div>

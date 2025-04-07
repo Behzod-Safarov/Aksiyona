@@ -249,6 +249,10 @@ export class DealcreateComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
+  goToCabinet() {
+    this.router.navigate(['/cabinet']);
+  }
+
   resetForm() {
     this.selectedLocation = { isOnline: false };
     this.selectedCategory = { name: '', subcategory: '', subcategoryId: 0 };

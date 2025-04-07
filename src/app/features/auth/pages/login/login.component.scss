@@ -144,6 +144,11 @@
   }
 }
 
+@media (max-width: 768px) {
+  .login-container {
+    background: white;
+  }
+}
 @keyframes fadeIn {
   from {
     opacity: 0;

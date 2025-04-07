@@ -29,6 +29,7 @@ export class HeaderComponent {
   showDropdown = false;
   searchQuery = "";
   isMenuOpen = false;
+  isHeaderVisible = true;
 
   constructor(
     private router: Router,
@@ -41,6 +42,10 @@ export class HeaderComponent {
     this.loadNotifications();
   }
 
+  ngOnInit() {
+  }
+  
+  
   loadCategories() {
     this.apiService.getCategories().subscribe({
       next: (categories) => {
@@ -104,6 +109,11 @@ export class HeaderComponent {
     this.authService.signOut();
     console.log('Sign out clicked!');
   }
+  
+  goToCabinet(): void {
+    this.router.navigate(['/cabinet']);
+    console.log('Cabinet clicked!');
+  }
 
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
@@ -114,6 +124,7 @@ export class HeaderComponent {
   }
 
   onCartClick(): void {
+    this.router.navigate(['/admin']);
     console.log('Cart icon clicked!');
   }
 
@@ -138,7 +149,7 @@ export class HeaderComponent {
   }
 
   hertIconClicked(): void {
-    this.router.navigate(['cabinet']);
+    this.router.navigate(['liked']);
     console.log("Heart icon clicked");
   }
 

@@ -21,7 +21,6 @@ export class LoginComponent {
     console.log('LoginComponent initialized');
   }
 
-
   onSubmit() {
     this.errorMessage = ''; // Reset error message
     if (!this.username || !this.password) {
@@ -36,7 +35,6 @@ export class LoginComponent {
         console.log('Login successful:', response);
         this.isLoading = false;
         
-        //
         // Navigate to home and refresh
         this.router.navigate(['/']).then(() => {
           window.location.reload(); // Refresh the page after navigation

@@ -6,6 +6,7 @@ import { DealDto, UpdateReviewDto } from '../core/models/deal-dto';
 import { CommentDto } from '../core/models/comment-dto';
 import { CategoryDto } from '../core/models/category-dto';
 import { LocationDto } from '../core/models/location-dto';
+import { UserDto } from '../core/models/user-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -98,5 +99,32 @@ export class ApiService {
   getLocations(): Observable<LocationDto[]> {
     return this.http.get<LocationDto[]>(`${this.apiBaseUrl}/Location`);
   }
+  getAllUsers(): Observable<UserDto[]> {
+    return this.http.get<UserDto[]>(`${this.apiBaseUrl}/UserConfig/users`);
+  }
 
+  // Admin: Delete a user
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/UserConfig/users/${id}`);
+  }
+
+  // Admin: Get all active deals
+  getActiveDeals(): Observable<DealDto[]> {
+    return this.http.get<DealDto[]>(`${this.apiBaseUrl}/UserConfig/deals`);
+  }
+
+  // Admin: Get all pending deals (new deals)
+  getPendingDeals(): Observable<DealDto[]> {
+    return this.http.get<DealDto[]>(`${this.apiBaseUrl}/UserConfig/new-deals`);
+  }
+
+  // Admin: Delete a deal
+  deleteDeal(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/UserConfig/deals/${id}`);
+  }
+
+  // Admin: Activate a pending deal
+  activateDeal(id: number): Observable<DealDto> {
+    return this.http.patch<DealDto>(`${this.apiBaseUrl}/UserConfig/new-deals/${id}/activate`, {});
+  }
 }

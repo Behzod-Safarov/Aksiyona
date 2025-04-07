@@ -1,0 +1,250 @@
+<div class="admin-container">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h2>Admin Panel</h2>
+      </div>
+      <ul class="sidebar-menu">
+        <li
+          [class.active]="activeSection === 'users'"
+          (click)="setActiveSection('users')"
+          tabindex="0"
+          (keydown.enter)="setActiveSection('users')"
+          aria-label="View Users"
+        >
+          <span class="material-icons">people</span> Users
+        </li>
+        <li
+          [class.active]="activeSection === 'deals'"
+          (click)="setActiveSection('deals')"
+          tabindex="0"
+          (keydown.enter)="setActiveSection('deals')"
+          aria-label="View Deals"
+        >
+          <span class="material-icons">store</span> Deals
+        </li>
+        <li
+          [class.active]="activeSection === 'new-deals'"
+          (click)="setActiveSection('new-deals')"
+          tabindex="0"
+          (keydown.enter)="setActiveSection('new-deals')"
+          aria-label="View New Deals"
+        >
+          <span class="material-icons">new_releases</span> New Deals
+        </li>
+      </ul>
+    </nav>
+  
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Messages -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <span class="material-icons">error</span> {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="alert alert-success">
+        <span class="material-icons">check_circle</span> {{ successMessage }}
+      </div>
+  
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading">
+        <div class="spinner"></div> Loading...
+      </div>
+  
+      <!-- Users Section -->
+      <section *ngIf="activeSection === 'users' && !isLoading">
+        <h1>Users</h1>
+        <div class="grid">
+          <div class="card" *ngFor="let user of users$ | async">
+            <div class="card-content">
+              <h3>{{ user.username }}</h3>
+              <p class="phone-number"><span class="material-icons">phone</span> {{ user.phoneNumber }}</p>
+              <p class="deal-count"><span class="material-icons">store</span> {{ user.deals.length }} Deals</p>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-danger" (click)="deleteUser(user.id)" aria-label="Delete User">
+                <span class="material-icons">delete</span> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+  
+      <!-- Deals Section -->
+      <section *ngIf="activeSection === 'deals' && !isLoading">
+        <h1>Active Deals</h1>
+        <div class="grid">
+          <div class="card" *ngFor="let deal of activeDeals$ | async">
+            <div class="image-wrapper">
+              <img
+                [src]="deal.image || 'https://via.placeholder.com/400x260?text=No+Image'"
+                [alt]="deal.title"
+                loading="lazy"
+              />
+              <span class="discount-badge" *ngIf="deal.discount >= 50">Hot Deal!</span>
+            </div>
+            <div class="card-content">
+              <h3>{{ deal.title }}</h3>
+              <p class="price">
+                <span class="old-price">{{ deal.oldPrice | currency:'UZS ':'symbol' }}</span>
+                <span class="new-price">{{ deal.price | currency:'UZS ':'symbol' }}</span>
+                <span class="discount">-{{ deal.discount }}%</span>
+              </p>
+              <p class="category"><span class="material-icons">category</span> {{ deal.category }}</p>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-primary" (click)="editDeal(deal)" aria-label="Edit Deal">
+                <span class="material-icons">edit</span> Edit
+              </button>
+              <button class="btn btn-danger" (click)="deleteDeal(deal.id)" aria-label="Delete Deal">
+                <span class="material-icons">delete</span> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+  
+      <!-- New Deals Section -->
+      <section *ngIf="activeSection === 'new-deals' && !isLoading">
+        <h1>New Deals (Pending)</h1>
+        <div class="grid">
+          <div class="card" *ngFor="let deal of pendingDeals$ | async">
+            <div class="image-wrapper">
+              <img
+                [src]="deal.image || 'https://via.placeholder.com/400x260?text=No+Image'"
+                [alt]="deal.title"
+                loading="lazy"
+              />
+              <span class="status-badge">Pending</span>
+            </div>
+            <div class="card-content">
+              <h3>{{ deal.title }}</h3>
+              <p class="price">
+                <span class="old-price">{{ deal.oldPrice | currency:'UZS ':'symbol' }}</span>
+                <span class="new-price">{{ deal.price | currency:'UZS ':'symbol' }}</span>
+                <span class="discount">-{{ deal.discount }}%</span>
+              </p>
+              <p class="category"><span class="material-icons">category</span> {{ deal.category }}</p>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-success" (click)="activateDeal(deal.id)" aria-label="Activate Deal">
+                <span class="material-icons">check</span> Activate
+              </button>
+              <button class="btn btn-primary" (click)="viewDealDetails(deal)" aria-label="View Deal Details">
+                <span class="material-icons">visibility</span> View Details
+              </button>
+              <button class="btn btn-danger" (click)="deleteDeal(deal.id)" aria-label="Delete Deal">
+                <span class="material-icons">delete</span> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+  
+      <!-- Edit Deal Modal -->
+      <div class="modal" *ngIf="selectedDeal && activeSection === 'deals'">
+        <div class="modal-content">
+          <h2>Edit Deal</h2>
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              id="title"
+              type="text"
+              [(ngModel)]="selectedDeal.title"
+              class="form-control"
+              placeholder="Enter deal title"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div class="form-group">
+            <label for="price">Price</label>
+            <input
+              id="price"
+              type="number"
+              [(ngModel)]="selectedDeal.price"
+              class="form-control"
+              placeholder="Enter price"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div class="form-group">
+            <label for="oldPrice">Old Price</label>
+            <input
+              id="oldPrice"
+              type="number"
+              [(ngModel)]="selectedDeal.oldPrice"
+              class="form-control"
+              placeholder="Enter old price"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div class="form-group">
+            <label for="discount">Discount (%)</label>
+            <input
+              id="discount"
+              type="number"
+              [(ngModel)]="selectedDeal.discount"
+              class="form-control"
+              readonly
+              aria-readonly="true"
+            />
+          </div>
+          <div class="form-group">
+            <label for="expiryDate">Expiry Date</label>
+            <input
+              id="expiryDate"
+              type="date"
+              [(ngModel)]="selectedDeal.expiryDate"
+              class="form-control"
+              required
+              aria-required="true"
+            />
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" (click)="saveDeal()" [disabled]="isLoading" aria-label="Save Deal">
+              <span class="material-icons">save</span> Save
+            </button>
+            <button class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isLoading" aria-label="Cancel">
+              <span class="material-icons">cancel</span> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <!-- View Deal Details Modal -->
+      <div class="modal" *ngIf="selectedDeal && activeSection === 'new-deals'">
+        <div class="modal-content">
+          <h2>Deal Details</h2>
+          <div class="deal-details">
+            <p><strong>Title:</strong> {{ selectedDeal.title }}</p>
+            <p><strong>Price:</strong> {{ selectedDeal.price | currency:'UZS ':'symbol' }}</p>
+            <p><strong>Old Price:</strong> {{ selectedDeal.oldPrice | currency:'UZS ':'symbol' }}</p>
+            <p><strong>Discount:</strong> {{ selectedDeal.discount }}%</p>
+            <p><strong>Category:</strong> {{ selectedDeal.category }}</p>
+            <p><strong>Stock:</strong> {{ selectedDeal.stock }}</p>
+            <p><strong>Location:</strong> {{ selectedDeal.location }}</p>
+            <p><strong>Expiry Date:</strong> {{ selectedDeal.expiryDate | date:'mediumDate' }}</p>
+            <p><strong>Created At:</strong> {{ selectedDeal.createdAt | date:'mediumDate' }}</p>
+            <p><strong>Deal Starting Date:</strong> {{ selectedDeal.dealStartingDate | date:'mediumDate' }}</p>
+            <div class="image-preview">
+              <img
+                [src]="selectedDeal.image || 'https://via.placeholder.com/400x260?text=No+Image'"
+                [alt]="selectedDeal.title"
+                class="preview-image"
+              />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-success" (click)="activateDeal(selectedDeal.id)" [disabled]="isLoading" aria-label="Activate Deal">
+              <span class="material-icons">check</span> Activate
+            </button>
+            <button class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isLoading" aria-label="Close">
+              <span class="material-icons">close</span> Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
