@@ -63,6 +63,7 @@ $spinner: #a78bfa;
       cursor: pointer;
       transition: background 0.3s ease, color 0.3s ease;
       border-radius: 10px;
+      pointer-events: auto; // Ensure sidebar items are clickable
 
       &:hover {
         background: rgba(255, 255, 255, 0.1);
@@ -188,6 +189,7 @@ $spinner: #a78bfa;
     height: 100%;
     background: $card-overlay;
     z-index: 0;
+    pointer-events: none; // Ensure overlay doesn’t block clicks
   }
 }
 
@@ -309,7 +311,7 @@ $spinner: #a78bfa;
   padding: 1rem 1.75rem;
   border-top: 1px solid $border;
   background: rgba($card-bg, 0.5);
-  z-index: 1;
+  z-index: 2; // Increased to ensure buttons are above overlay
 
   .btn {
     flex: 1;
@@ -317,8 +319,8 @@ $spinner: #a78bfa;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    font-weight: 500;
     padding: 12px;
+    pointer-events: auto; // Ensure buttons are clickable
   }
 }
 
@@ -346,6 +348,7 @@ $spinner: #a78bfa;
     border: 1px solid $border;
     position: relative;
     animation: slideIn 0.4s ease-in-out;
+    z-index: 101; // Ensure modal content is above background
 
     h2 {
       font-size: 1.75rem;
@@ -425,6 +428,7 @@ $spinner: #a78bfa;
         justify-content: center;
         gap: 10px;
         padding: 12px;
+        pointer-events: auto; // Ensure modal buttons are clickable
       }
     }
   }
@@ -438,6 +442,9 @@ $spinner: #a78bfa;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  position: relative; // Ensure proper stacking
+  z-index: 1; // Ensure above other elements
+  pointer-events: auto; // Explicitly enable clicks
 
   &:hover {
     transform: translateY(-3px);
@@ -490,6 +497,7 @@ $spinner: #a78bfa;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    pointer-events: none; // Disable clicks when disabled
   }
 
   .material-icons {
@@ -498,18 +506,32 @@ $spinner: #a78bfa;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 1024px) {

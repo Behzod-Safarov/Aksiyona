@@ -32,10 +32,8 @@ export class LoginComponent {
     this.apiService.login(this.username, this.password).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token); // Store JWT token
-        console.log('Login successful:', response);
         this.isLoading = false;
         
-        // Navigate to home and refresh
         this.router.navigate(['/']).then(() => {
           window.location.reload(); // Refresh the page after navigation
         });
