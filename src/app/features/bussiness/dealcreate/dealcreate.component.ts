@@ -124,7 +124,6 @@ export class DealcreateComponent implements OnInit {
 
   selectLocation(region: string, subRegion?: string) {
     this.selectedLocation = { region, subRegion, isOnline: false };
-    this.deal.location = subRegion ? `${region}, ${subRegion}` : region;
     this.currentStep = 'category';
     this.showSubregions = null;
   }
@@ -219,6 +218,8 @@ export class DealcreateComponent implements OnInit {
     formData.append('createdAt', this.deal.createdAt);
     formData.append('dealStartingDate', this.deal.dealStartingDate);
     formData.append('location', this.deal.location || '');
+    formData.append('region', this.selectedLocation.region || '');
+    formData.append('subRegion', this.selectedLocation.subRegion || '');
     formData.append('userId', this.userId.toString());  // Add userId to form data
 
     this.imageFiles.forEach((file) => {

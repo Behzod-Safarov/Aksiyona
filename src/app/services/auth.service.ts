@@ -65,7 +65,9 @@ export class AuthService {
 
         console.log('Extracted userId:', userId);
         console.log('Extracted UserRole:', userRole);
-
+        localStorage.setItem('userId', String(userId)); // Store userId in localStorage for debugging
+        localStorage.setItem('userRole', String(userRole)); // Store userRole in localStorage for debugging
+        
         this.userIdSubject.next(userId);
         this.userRoleSubject.next(userRole);
       } catch (error) {

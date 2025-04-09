@@ -30,6 +30,7 @@ export class HeaderComponent {
   searchQuery = "";
   isMenuOpen = false;
   isHeaderVisible = true;
+  userRole: string | null = null;
 
   constructor(
     private router: Router,
@@ -111,7 +112,15 @@ export class HeaderComponent {
   }
   
   goToCabinet(): void {
-    this.router.navigate(['/cabinet']);
+    this.userRole = localStorage.getItem('userRole');
+    console.log('User role:', this.userRole); // Debugging line
+    if (this.userRole === 'Admin') {
+      this.router.navigate(['/admin']);
+    } else if (this.userRole === 'Biznesmen') {
+      this.router.navigate(['cabinet']);
+    } else {
+      this.router.navigate(['/']);
+    }
     console.log('Cabinet clicked!');
   }
 
@@ -153,6 +162,7 @@ export class HeaderComponent {
     console.log("Heart icon clicked");
   }
 
+  
   selectSubregion(region: string, subregion: string): void {
     if (!this.selectedSubregions[region]) {
       this.selectedSubregions[region] = [];

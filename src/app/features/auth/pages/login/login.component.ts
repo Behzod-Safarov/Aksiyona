@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -11,13 +13,20 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./login.component.scss'],
   imports: [CommonModule, FormsModule]
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
   username: string = '';
   password: string = '';
   errorMessage: string = '';
   isLoading: boolean = false;
+  userId: number | null = null;
+  userRole: string | null = null;
+  private roleSubscription: Subscription | undefined;
 
-  constructor(private apiService: ApiService, private router: Router) {
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private authService: AuthService
+  ) {
     console.log('LoginComponent initialized');
   }
 
@@ -31,11 +40,24 @@ export class LoginComponent {
     this.isLoading = true;
     this.apiService.login(this.username, this.password).subscribe({
       next: (response) => {
-        localStorage.setItem('token', response.token); // Store JWT token
+        // Store the token
+        this.authService.setToken(response.token);
         this.isLoading = false;
+
+        console.log('Login successful, token stored:', response.token);
+
+        // Initialize user data from the token
+        this.authService.initializeUser();
         
-        this.router.navigate(['/']).then(() => {
-          window.location.reload(); // Refresh the page after navigation
+        // Subscribe to userRole$ to get the role after initialization
+        this.roleSubscription = this.authService.userRole$.subscribe(role => {
+          this.userRole = role;
+          if (role) {
+            this.navigateBasedOnRole(role);
+          } else {
+            this.errorMessage = 'User role not found in token.';
+            console.error('No role found after initialization');
+          }
         });
       },
       error: (err) => {
@@ -44,5 +66,21 @@ export class LoginComponent {
         console.error('Login failed:', err);
       }
     });
+  }
+
+  private navigateBasedOnRole(role: string) {
+    if (role === 'Admin') {
+      this.router.navigate(['admin']);
+    } else if (role === 'Business') { // Updated to match your AuthService's "Business" role
+      this.router.navigate(['cabinet']);
+    } else {
+      this.router.navigate(['/']); // Default route
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.roleSubscription) {
+      this.roleSubscription.unsubscribe();
+    }
   }
 }
