@@ -7,6 +7,7 @@ import { ApiService } from '../../../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { API_URLS } from '../../../../core/constants/api_urls';
+import { Router } from '@angular/router';
 
 @Component({  
   selector: 'app-admin',
@@ -33,7 +34,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   private readonly BASE_URL = API_URLS.BASE_URL; // Centralized constant
   private destroy$ = new Subject<void>(); // For unsubscribing
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -188,6 +189,10 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.selectedDeal = { ...deal };
 
     console.log('Deal details:', this.selectedDeal);
+  }
+
+  goToHome() {
+    this.router.navigate(['/']);
   }
 
   private handleSuccess(message: string, reloadFn: () => void, additionalAction?: () => void): void {
