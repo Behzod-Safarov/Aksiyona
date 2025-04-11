@@ -7,7 +7,7 @@
       <span class="step-number">2</span> <span class="step-text">Kategoriya</span>
     </div>
     <div class="step" [ngClass]="{'active': currentStep === 'deal'}">
-      <span class="step-number">3</span> <span class="step-text">Kelishuv Tafsilotlari</span>
+      <span class="step-number">3</span> <span class="step-text">Chegirma Tafsilotlari</span>
     </div>
     <div class="step" [ngClass]="{'active': currentStep === 'confirmation'}">
       <span class="step-number">4</span> <span class="step-text">Tasdiqlash</span>
@@ -70,12 +70,12 @@
     </ng-container>
 
     <ng-container *ngIf="currentStep === 'deal'">
-      <h2 class="step-title">Kelishuv Yaratish</h2>
+      <h2 class="step-title">Chegirma Yaratish</h2>
       <button class="back-btn" (click)="goBack()">Orqaga</button>
       <form class="deal-form">
         <div class="form-group animate-field">
           <label class="form-label">Sarlavha</label>
-          <input type="text" [(ngModel)]="deal.title" name="title" required placeholder="Kelishuv sarlavhasini kiriting">
+          <input type="text" [(ngModel)]="deal.title" name="title" required placeholder="Chegirma sarlavhasini kiriting">
         </div>
         <div class="form-group animate-field">
           <label class="form-label">Rasmlar (maksimum {{maxImages}})</label>
@@ -90,11 +90,13 @@
         </div>
         <div class="form-group animate-field">
           <label class="form-label">Asl Narx</label>
-          <input type="number" [(ngModel)]="deal.oldPrice" name="oldPrice" (change)="calculateDiscount()" required placeholder="masalan, 100">
+          <input type="number" [(ngModel)]="deal.oldPrice" name="oldPrice" (ngModelChange)="calculateDiscount()" required placeholder="masalan, 100" min="1">
+          <div *ngIf="priceValidationError" class="error-message">{{priceValidationError}}</div>
         </div>
         <div class="form-group animate-field">
           <label class="form-label">Chegirmali Narx</label>
-          <input type="number" [(ngModel)]="deal.price" name="price" (change)="calculateDiscount()" required placeholder="masalan, 80">
+          <input type="number" [(ngModel)]="deal.price" name="price" (ngModelChange)="calculateDiscount()" required placeholder="masalan, 80" min="1">
+          <div *ngIf="priceValidationError" class="error-message">{{priceValidationError}}</div>
         </div>
         <div class="form-group animate-field">
           <label class="form-label">Chegirma (%)</label>
@@ -102,11 +104,13 @@
         </div>
         <div class="form-group animate-field">
           <label class="form-label">Boshlanish Sanasi</label>
-          <input type="date" [(ngModel)]="deal.expiryDate" name="expiryDate" required>
+          <input type="date" [(ngModel)]="deal.dealStartingDate" name="dealStartingDate" required [min]="todayDate()">
+          <div *ngIf="dateValidationError" class="error-message">{{dateValidationError}}</div>
         </div>
         <div class="form-group animate-field">
           <label class="form-label">Tugash Sanasi</label>
-          <input type="date" [(ngModel)]="deal.dealStartingDate" name="expiryDate" required>
+          <input type="date" [(ngModel)]="deal.expiryDate" name="expiryDate" required [min]="minExpiryDate()">
+          <div *ngIf="dateValidationError" class="error-message">{{dateValidationError}}</div>
         </div>
         <div class="form-group animate-field">
           <label class="form-label">Joylashuv URL (ixtiyoriy)</label>
@@ -115,14 +119,14 @@
           </div>
         </div>
         <button type="button" class="next-btn" (click)="goToConfirmation()" 
-                [disabled]="!deal.title || !deal.price || !deal.oldPrice || !deal.expiryDate || !imageFiles.length">
+        [disabled]="!deal.title || !deal.price || !deal.oldPrice || !deal.expiryDate || !deal.dealStartingDate || !imageFiles.length || dateValidationError || priceValidationError">
           Keyingi
-        </button>
+      </button>
       </form>
     </ng-container>
 
     <ng-container *ngIf="currentStep === 'confirmation'">
-      <h2 class="step-title">Kelishuvni Tasdiqlang</h2>
+      <h2 class="step-title">Chegirmani Tasdiqlang</h2>
       <button class="back-btn" (click)="goBack()">Orqaga</button>
       <div class="confirmation-details animate-confirmation">
         <div class="image-preview-container">
@@ -131,18 +135,22 @@
         <p class="confirm-item"><strong>Sarlavha:</strong> {{deal.title}}</p>
         <p class="confirm-item"><strong>Joylashuv:</strong> {{selectedLocation.isOnline ? 'Onlayn Do\'kon' : (selectedLocation.region + (selectedLocation.subRegion ? ' - ' + selectedLocation.subRegion : ''))}}</p>
         <p class="confirm-item"><strong>Kategoriya:</strong> {{selectedCategory.name}} - {{selectedCategory.subcategory}}</p>
-        <p class="confirm-item"><strong>Narx:</strong> ${{deal.price}} (Avval ${{deal.oldPrice}} - {{deal.discount}}% chegirma)</p>
-        <p class="confirm-item"><strong>Amal qilish muddati:</strong> {{deal.expiryDate}}</p>
+        <p class="confirm-item"><strong>Asl Narx:</strong> {{deal.oldPrice | currency}}</p>
+        <p class="confirm-item"><strong>Chegirmali Narx:</strong> {{deal.price | currency}}</p>
+        <p class="confirm-item"><strong>Chegirma:</strong> {{deal.discount}}%</p>
+        <p class="confirm-item"><strong>Joylashuv URL:</strong> <a [href]="deal.location" target="_blank">{{deal.location}}</a></p>
+        <p class="confirm-item"><strong>Boshlanish Sanasi:</strong> {{deal.dealStartingDate}}</p>
+        <p class="confirm-item"><strong>Tugash Sanasi:</strong> {{deal.expiryDate}}</p>
       </div>
-      <button class="confirm-btn" (click)="createDeal()">Kelishuv Yaratish</button>
+      <button class="confirm-btn" (click)="createDeal()">Chegirma Yaratish</button>
     </ng-container>
 
     <ng-container *ngIf="currentStep === 'success'">
       <h2 class="step-title">Muvaffaqiyatli Saqlandi!</h2>
       <div class="success-message">{{successMessage}}</div>
       <div class="success-buttons">
-        <button class="next-btn" (click)="createAnotherDeal()">Yana Kelishuv Yaratish</button>
-        <button class="confirm-btn" (click)="goToHomePage()">Bosh Sahifaga Qaytish</button>
+        <button class="next-btn" (click)="createAnotherDeal()">Yana Chegirma Yaratish</button>
+        <button class="confirm-btn" (click)="goToHomePage()">Accountga Qaytish</button>
       </div>
     </ng-container>
   </div>

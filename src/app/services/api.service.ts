@@ -7,13 +7,14 @@ import { CommentDto } from '../core/models/comment-dto';
 import { CategoryDto } from '../core/models/category-dto';
 import { LocationDto } from '../core/models/location-dto';
 import { UserDto } from '../core/models/user-dto';
+import { API_URLS } from '../core/constants/api_urls';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  private apiBaseUrl = 'http://localhost:5251/api';
-  private readonly BASE_URL = 'http://localhost:5251';
+  private apiBaseUrl = API_URLS.API_URLS; // Use the constant API URL
+  private readonly BASE_URL = API_URLS.BASE_URL; // Use the constant BASE URL
 
   constructor(private http: HttpClient) {}
 

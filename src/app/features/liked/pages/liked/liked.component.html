@@ -1,5 +1,5 @@
 <div class="liked-container">
-  <h2>My Liked Deals</h2>
+  <h2>Mening yoqtirgan Chegirmalarim</h2>
 
   <!-- Loading State -->
   <div class="loading" *ngIf="isLoading">
@@ -14,19 +14,19 @@
     <div class="liked-item" *ngFor="let likedDeal of likedDeals">
       <div class="deal-image">
         <img 
-          [src]="likedDeal.deal.image || 'assets/placeholder.jpg'" 
-          [alt]="likedDeal.deal.title" 
+          [src]="likedDeal.deal.images[0] || 'assets/placeholder.jpg'" 
+          [alt]="likedDeal.deal.Title" 
           (error)="onImageError($event)"
         >
       </div>
       <div class="deal-details">
-        <h3>{{ likedDeal.deal.title }}</h3>
-        <p class="description">{{ likedDeal.deal.title }}</p>
-        <p class="price">Price: ${{ likedDeal.deal.price.toFixed(2) }}</p>
-        <p class="username"><strong>Liked by:</strong> {{ likedDeal.like.username }}</p>
+        <h3>{{ likedDeal.deal.Title }}</h3>
+        <p class="description">{{ likedDeal.deal.Title }}</p>
+        <p class="price">Price: ${{ likedDeal.deal.Price.toFixed(2) }}</p>
+        <p class="username"><strong>Liked by:</strong> {{ likedDeal.like.username || 'You' }}</p>
         <div class="actions">
-          <a [routerLink]="['/deal', likedDeal.deal.id]" class="view-deal-link">View Deal</a>
-          <button class="unlike-button" (click)="unlikeDeal(likedDeal.like.Id)">Unlike</button>
+          <a [routerLink]="['/deal', likedDeal.deal.Id]" class="view-deal-link">Chegirmani ko'rish</a>
+          <button class="unlike-button" (click)="unlikeDeal(likedDeal.like.Id)">O'chirish</button>
         </div>
       </div>
     </div>
@@ -34,6 +34,6 @@
 
   <!-- No Likes Message -->
   <ng-template #noLikes>
-    <p class="no-likes" *ngIf="!isLoading">You haven't liked any deals yet.</p>
+    <p class="no-likes" *ngIf="!isLoading">Hali sizning yoqtirgan chegirmalaringiz yo'q</p>
   </ng-template>
 </div>

@@ -1,23 +1,24 @@
 .liked-container {
   position: relative;
   top: 100px;
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
+}
 
-  h2 {
-    margin-bottom: 20px;
-    color: #333;
-  }
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .loading {
   text-align: center;
   padding: 20px;
+  font-size: 1.2em;
 }
 
 .error-message {
-  color: #d32f2f;
+  color: red;
   text-align: center;
   padding: 10px;
 }
@@ -31,113 +32,79 @@
 .liked-item {
   display: flex;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 15px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease-in-out;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
 
-  &:hover {
-    transform: translateY(-2px);
-  }
+.deal-image {
+  flex: 0 0 120px;
+}
 
-  .deal-image {
-    position: relative;
-    flex: 0 0 100px;
-    margin-right: 15px;
+.deal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-    img {
-      width: 100%;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 5px;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
+.deal-details {
+  flex: 1;
+  padding: 10px;
+}
 
-      &.image-loaded {
-        opacity: 1;
-      }
-    }
+.deal-details h3 {
+  margin: 0 0 5px;
+  font-size: 1.1em;
+}
 
-    .image-placeholder {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100px;
-      background-color: #f0f0f0;
-      border-radius: 5px;
-      animation: pulse 1.5s infinite;
-    }
-  }
+.description {
+  color: #666;
+  font-size: 0.9em;
+  margin: 0 0 10px;
+}
 
-  .deal-details {
-    flex: 1;
+.price {
+  font-weight: bold;
+  color: #2ecc71;
+  margin: 0 0 10px;
+}
 
-    h3 {
-      margin: 0 0 10px;
-      font-size: 1.2em;
-      color: #1976d2;
-    }
-
-    .description {
-      margin: 0 0 10px;
-      color: #666;
-    }
-
-    .price {
-      margin: 0 0 10px;
-      font-weight: bold;
-      color: #2e7d32;
-    }
-
-    .username {
-      margin: 0 0 10px;
-      color: #555;
-    }
-  }
+.username {
+  font-size: 0.9em;
+  margin: 0 0 10px;
 }
 
 .actions {
   display: flex;
   gap: 10px;
+}
 
-  .view-deal-link {
-    padding: 8px 15px;
-    background-color: #1976d2;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+.view-deal-link {
+  text-decoration: none;
+  color: #3498db;
+  font-weight: bold;
+}
 
-    &:hover {
-      background-color: #1565c0;
-    }
-  }
+.view-deal-link:hover {
+  text-decoration: underline;
+}
 
-  .unlike-button {
-    padding: 8px 15px;
-    background-color: #d32f2f;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+.unlike-button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-    &:hover {
-      background-color: #b71c1c;
-    }
-  }
+.unlike-button:hover {
+  background: #c0392b;
 }
 
 .no-likes {
   text-align: center;
   padding: 20px;
-  color: #666;
-}
-
-@keyframes pulse {
-  0% { background-color: #f0f0f0; }
-  50% { background-color: #e0e0e0; }
-  100% { background-color: #f0f0f0; }
+  font-size: 1.1em;
+  color: #777;
 }

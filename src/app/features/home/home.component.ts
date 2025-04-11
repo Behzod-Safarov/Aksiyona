@@ -7,6 +7,7 @@ import { LikedDto } from '../../core/models/liked-dto';
 import { DealDto } from '../../core/models/deal-dto';
 import { Subscription } from 'rxjs';
 import { FilterService } from '../../shared/services/filter.service';
+import { API_URLS } from '../../core/constants/api_urls';
 
 interface Deal {
   id: number;
@@ -35,7 +36,7 @@ interface Deal {
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  private readonly BASE_URL = 'http://localhost:5251';
+  private readonly BASE_URL = API_URLS.BASE_URL;
   deals: Deal[] = [];
   filteredDeals: Deal[] = [];
   loading: boolean = false;

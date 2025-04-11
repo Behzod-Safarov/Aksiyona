@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { API_URLS } from '../core/constants/api_urls';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +41,7 @@ export class AuthService {
 
         const payload = JSON.parse(atob(parts[1]));
         // Validate issuer and audience for local server
-        if (payload.iss !== 'http://localhost:5251' || payload.aud !== 'http://localhost:5251') {
+        if (payload.iss !== API_URLS.BASE_URL || payload.aud !== API_URLS.BASE_URL) {
           console.error('Invalid token: Issuer or Audience mismatch');
           this.signOut();
           return;

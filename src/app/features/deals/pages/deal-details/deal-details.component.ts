@@ -9,6 +9,7 @@ import { LikedDto } from '../../../../core/models/liked-dto';
 import { ApiService } from '../../../../services/api.service';
 import { CommentDto } from '../../../../core/models/comment-dto';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { API_URLS } from '../../../../core/constants/api_urls';
 
 interface Comment {
   id: number;
@@ -63,6 +64,8 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
   private countdownInterval: any;
   private authSub: Subscription | undefined;
 
+  public BASE_URL = API_URLS.BASE_URL;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -116,7 +119,7 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
       discount: 33,
       reviews: 0,
       rating: 0,
-      images: [`http://localhost:5251/images/placeholder.jpg`], // Use backend URL directly
+      images: [`${this.BASE_URL}/images/placeholder.jpg`], // Use backend URL directly
       description: 'Test description',
       category: 'Test',
       stock: 10,
@@ -137,15 +140,13 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
         const expiryDate = this.parseDate(dealData.expiryDate);
         this.deal = this.mapDealDtoToDeal(dealData, expiryDate);
         this.comments = this.deal.comments.filter(x => x.text !== '');
-        this.selectedImage = this.deal.images[0] || `http://localhost:5251/images/placeholder.jpg`;
+        this.selectedImage = this.deal.images[0] || `${this.BASE_URL}}/images/placeholder.jpg`;
 
         if (this.deal.location) {
           this.location = this.sanitizer.bypassSecurityTrustResourceUrl(this.deal.location);
-        } else {
-          this.location = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.google.com/maps?q=41.379788,69.306893&output=embed');
         }
         
-        console.log('Deal images:', this.deal.images); // Debug log
+        console.log('Deal images:', this.deal.images);
         if (this.userId) {
           this.fetchLikedState();
           this.setUserRatingFromComments();
@@ -215,8 +216,8 @@ export class DealDetailsComponent implements OnInit, OnDestroy {
     const images = dto.image 
       ? dto.image.split(',')
           .filter(img => img.trim() !== '')
-          .map(img => `http://localhost:5251${img}`) // Use backend URL directly
-      : [`http://localhost:5251/images/placeholder.jpg`];
+          .map(img => `${this.BASE_URL}/${img}`) // Use backend URL directly
+      : [`${this.BASE_URL}/images/placeholder.jpg`];
 
     return {
       id: dto.id ?? 0,

@@ -21,7 +21,7 @@ export class DealcreateComponent implements OnInit {
   currentStep: 'location' | 'category' | 'deal' | 'confirmation' | 'success' = 'location';
   selectedLocation: { region?: string; subRegion?: string; isOnline: boolean } = { isOnline: false };
   selectedCategory: { name: string; subcategory: string; subcategoryId: number } = { name: '', subcategory: '', subcategoryId: 0 };
-  deal: DealDto & { userId?: number } = {  // Extended DealDto with userId
+  deal: DealDto & { userId?: number } = {
     id: 0,
     image: '',
     title: '',
@@ -39,7 +39,7 @@ export class DealcreateComponent implements OnInit {
     comments: [],
     notifications: [],
     location: '',
-    userId: undefined  // Added userId
+    userId: undefined
   };
 
   showSubregions: string | null = null;
@@ -50,6 +50,10 @@ export class DealcreateComponent implements OnInit {
   successMessage: string | null = null;
   userId: number | null = null;
 
+  // New properties for specific validation errors
+  dateValidationError: string | null = null;
+  priceValidationError: string | null = null;
+
   constructor(
     private apiService: ApiService,
     private authService: AuthService,
@@ -57,18 +61,16 @@ export class DealcreateComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Check if user is logged in and get userId
     this.authService.userId$.subscribe({
       next: (userId) => {
         if (!userId) {
-
-          localStorage.setItem('redirectUrl', this.router.url);  // Store the current URL
+          localStorage.setItem('redirectUrl', this.router.url);
           this.errorMessage = 'You must be logged in to create a deal';
           this.router.navigate(['/login']);
           return;
         }
         this.userId = userId;
-        this.deal.userId = userId;  // Set the userId for the deal
+        this.deal.userId = userId;
         this.loadCategories();
         this.loadLocations();
       },
@@ -79,6 +81,123 @@ export class DealcreateComponent implements OnInit {
     });
   }
 
+  todayDate(): string {
+    const today = new Date();
+    today.setDate(today.getDate() + 1); // Minimum is tomorrow
+    return today.toISOString().split('T')[0];
+  }
+
+  minExpiryDate(): string {
+    if (this.deal.dealStartingDate) {
+      const startDate = new Date(this.deal.dealStartingDate);
+      startDate.setDate(startDate.getDate() + 1); // Minimum expiry is day after start date
+      return startDate.toISOString().split('T')[0];
+    }
+    return this.todayDate();
+  }
+
+  validateDates(): boolean {
+    this.dateValidationError = null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day
+    const startDate = this.deal.dealStartingDate ? new Date(this.deal.dealStartingDate) : null;
+    const expiryDate = this.deal.expiryDate ? new Date(this.deal.expiryDate) : null;
+
+    if (startDate && startDate <= today) {
+      this.dateValidationError = 'Boshlanish sanasi bugungi kunga yoki undan keyin bo\'lishi kerak.';
+      return false;
+    }
+
+    if (startDate && expiryDate && expiryDate <= startDate) {
+      this.dateValidationError = 'Tugash muddat boshlanish muddatidan keyin bo\'lishi kerak.';
+      return false;
+    }
+
+    return true;
+  }
+
+  validatePrices(): boolean {
+    this.priceValidationError = null;
+    if (this.deal.oldPrice <= this.deal.price) {
+      this.priceValidationError = 'Eski narx yangi narxdan katta bo\'lishi kerak.';
+      return false;
+    }
+    if (this.deal.price <= 0 || this.deal.oldPrice <= 0) {
+      this.priceValidationError = 'narxlar 0 dan katta bo\'lishi kerak.';
+      return false;
+    }
+    return true;
+  }
+  calculateDiscount() {
+    if (this.validatePrices()) {
+      this.deal.discount = Math.round(((this.deal.oldPrice - this.deal.price) / this.deal.oldPrice) * 100);
+    } else {
+      this.deal.discount = 0; // Reset discount if prices are invalid
+    }
+  }
+
+  goToConfirmation() {
+    this.errorMessage = null;
+    if (!this.deal.title || !this.deal.price || !this.deal.oldPrice || !this.deal.expiryDate || !this.deal.dealStartingDate || !this.imageFiles.length) {
+      this.errorMessage = 'Iltimos, barcha majburiy maydonlarni to\'ldiring va kamida bitta rasm yuklang.';
+      return;
+    }
+    if (!this.validateDates() || !this.validatePrices()) {
+      return;
+    }
+    this.currentStep = 'confirmation';
+  }
+
+  createDeal() {
+    if (!this.userId) {
+      this.errorMessage = 'You must be logged in to create a deal';
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (!this.validateDates() || !this.validatePrices()) {
+      this.errorMessage = 'Iltimos, sanalarni va narxlarni tekshiring.';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', this.deal.title);
+    formData.append('price', this.deal.price.toString());
+    formData.append('oldPrice', this.deal.oldPrice.toString());
+    formData.append('discount', this.deal.discount.toString());
+    formData.append('rating', this.deal.rating.toString());
+    formData.append('reviews', this.deal.reviews.toString());
+    formData.append('expiryDate', this.deal.expiryDate);
+    formData.append('liked', this.deal.liked.toString());
+    formData.append('subcategoryId', this.deal.subcategoryId.toString());
+    formData.append('stock', '100');
+    formData.append('createdAt', this.deal.createdAt);
+    formData.append('dealStartingDate', this.deal.dealStartingDate);
+    formData.append('location', this.deal.location || '');
+    formData.append('region', this.selectedLocation.region || '');
+    formData.append('subRegion', this.selectedLocation.subRegion || '');
+    formData.append('userId', this.userId.toString());
+
+    this.imageFiles.forEach((file) => {
+      formData.append('images', file, file.name);
+    });
+
+    this.apiService.addDeal(formData).subscribe({
+      next: (response) => {
+        console.log('Deal created successfully:', response);
+        this.successMessage = 'Awwalam bor tashrifingiz uchun tashakkur, sizning joylagan mahsulotingiz yoki xizmatingiz noqonuniy emas ekanligiga adminlarimiz ishonch xosil qilganidan keyin biz uni ommaga namoyish etamiz.';
+        this.errorMessage = null;
+        this.currentStep = 'success';
+      },
+      error: (error) => {
+        console.error('Error creating deal:', error);
+        this.errorMessage = error.error?.message || 'Failed to create deal. Please try again.';
+        this.successMessage = null;
+      }
+    });
+  }
+
+  // Existing methods (unchanged unless noted)
   loadCategories() {
     this.apiService.getCategories().subscribe({
       next: (categories) => {
@@ -101,7 +220,7 @@ export class DealcreateComponent implements OnInit {
         this.locations = locations.map(loc => ({
           region: loc.region,
           subregions: loc.subregions,
-          enhanced: false  // Corrected property name to 'enhanced'
+          enhanced: false
         }));
       },
       error: (error) => {
@@ -173,12 +292,6 @@ export class DealcreateComponent implements OnInit {
     this.errorMessage = null;
   }
 
-  calculateDiscount() {
-    if (this.deal.oldPrice && this.deal.price) {
-      this.deal.discount = Math.round(((this.deal.oldPrice - this.deal.price) / this.deal.oldPrice) * 100);
-    }
-  }
-
   goBack() {
     if (this.currentStep === 'category') {
       this.currentStep = 'location';
@@ -189,65 +302,13 @@ export class DealcreateComponent implements OnInit {
     }
   }
 
-  goToConfirmation() {
-    if (!this.deal.title || !this.deal.price || !this.deal.oldPrice || !this.deal.expiryDate) {
-      this.errorMessage = 'Please fill in all required fields';
-      return;
-    }
-    this.currentStep = 'confirmation';
-  }
-
-  createDeal() {
-    if (!this.userId) {
-      this.errorMessage = 'You must be logged in to create a deal';
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('title', this.deal.title);
-    formData.append('price', this.deal.price.toString());
-    formData.append('oldPrice', this.deal.oldPrice.toString());
-    formData.append('discount', this.deal.discount.toString());
-    formData.append('rating', this.deal.rating.toString());
-    formData.append('reviews', this.deal.reviews.toString());
-    formData.append('expiryDate', this.deal.expiryDate);
-    formData.append('liked', this.deal.liked.toString());
-    formData.append('subcategoryId', this.deal.subcategoryId.toString());
-    formData.append('stock', '100');  // Assuming default stock
-    formData.append('createdAt', this.deal.createdAt);
-    formData.append('dealStartingDate', this.deal.dealStartingDate);
-    formData.append('location', this.deal.location || '');
-    formData.append('region', this.selectedLocation.region || '');
-    formData.append('subRegion', this.selectedLocation.subRegion || '');
-    formData.append('userId', this.userId.toString());  // Add userId to form data
-
-    this.imageFiles.forEach((file) => {
-      formData.append('images', file, file.name);
-    });
-
-    this.apiService.addDeal(formData).subscribe({
-      next: (response) => {
-        console.log('Deal created successfully:', response);
-        this.successMessage = 'Awwalam bor tashrifingiz uchun tashakkur, sizning joylagan mahsulotingiz yoki xizmatingiz noqonuniy emas ekanligiga adminlarimiz ishonch xosil qilganidan keyin biz uni ommaga namoyish etamiz.';
-        this.errorMessage = null;
-        this.currentStep = 'success';
-      },
-      error: (error) => {
-        console.error('Error creating deal:', error);
-        this.errorMessage = error.error?.message || 'Failed to create deal. Please try again.';
-        this.successMessage = null;
-      }
-    });
-  }
-
   createAnotherDeal() {
     this.resetForm();
     this.currentStep = 'location';
   }
 
   goToHomePage() {
-    this.router.navigate(['/']);
+    this.router.navigate(['cabinet']);
   }
 
   goToCabinet() {
@@ -271,15 +332,17 @@ export class DealcreateComponent implements OnInit {
       subcategoryId: 0,
       category: '',
       createdAt: new Date().toISOString(),
-      dealStartingDate: new Date().toISOString(),
+      dealStartingDate: '',
       comments: [],
       notifications: [],
       location: '',
-      userId: this.userId ?? undefined  // Preserve userId, convert null to undefined
+      userId: this.userId ?? undefined
     };
     this.previewImages = [];
     this.imageFiles = [];
     this.errorMessage = null;
     this.successMessage = null;
+    this.dateValidationError = null;
+    this.priceValidationError = null;
   }
 }

@@ -102,7 +102,7 @@ export class HeaderComponent {
   }
 
   onSignInClick(): void {
-    this.router.navigate(['/createdeal']);
+    this.router.navigate(['/login']);
     console.log('Sign in clicked!');
   }
 
@@ -133,8 +133,8 @@ export class HeaderComponent {
   }
 
   onCartClick(): void {
-    this.router.navigate(['/admin']);
-    console.log('Cart icon clicked!');
+    // this.router.navigate(['/admin']);
+    // console.log('Cart icon clicked!');
   }
 
   toggleDropdown(event: Event): void {

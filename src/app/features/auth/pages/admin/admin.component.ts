@@ -6,6 +6,7 @@ import { DealDto } from '../../../../core/models/deal-dto';
 import { ApiService } from '../../../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { API_URLS } from '../../../../core/constants/api_urls';
 
 @Component({  
   selector: 'app-admin',
@@ -29,7 +30,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
-  private readonly BASE_URL = 'http://localhost:5251'; // Centralized constant
+  private readonly BASE_URL = API_URLS.BASE_URL; // Centralized constant
   private destroy$ = new Subject<void>(); // For unsubscribing
 
   constructor(private apiService: ApiService) {}
@@ -185,6 +186,8 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   viewDealDetails(deal: DealDto): void {
     this.selectedDeal = { ...deal };
+
+    console.log('Deal details:', this.selectedDeal);
   }
 
   private handleSuccess(message: string, reloadFn: () => void, additionalAction?: () => void): void {

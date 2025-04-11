@@ -6,10 +6,28 @@ import { AuthService } from '../../../../services/auth.service';
 import { forkJoin, Observable, Subscription } from 'rxjs';
 import { LikedDto } from '../../../../core/models/liked-dto';
 import { DealDto } from '../../../../core/models/deal-dto';
+import { API_URLS } from '../../../../core/constants/api_urls';
 
 interface LikedDeal {
   like: LikedDto;
-  deal: DealDto;
+  deal: {
+    Id: number;
+    images: string[];
+    Title: string;
+    Price: number;
+    OldPrice: number;
+    Discount: number;
+    Rating: number;
+    Reviews: number;
+    ExpiryDate: string;
+    DealStartingDate: string;
+    SubcategoryId: number;
+    Stock: number;
+    CreatedAt: string;
+    Region?: string;
+    Subregion?: string;
+    UserId?: number;
+  };
 }
 
 @Component({
@@ -25,6 +43,7 @@ export class LikedComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   isLoading: boolean = false;
   private authSub: Subscription | undefined;
+  public BASE_URL = API_URLS.BASE_URL;
 
   constructor(
     private apiService: ApiService,
@@ -68,10 +87,35 @@ export class LikedComponent implements OnInit, OnDestroy {
 
         forkJoin(dealObservables).subscribe({
           next: (deals) => {
-            this.likedDeals = likes.map((like, index) => ({
-              like,
-              deal: deals[index]
-            }));
+            this.likedDeals = likes.map((like, index) => {
+              const dto = deals[index];
+              const images = dto.image
+                ? dto.image.split(',')
+                    .filter(img => img.trim() !== '')
+                    .map(img => img.startsWith('http') ? img : `${this.BASE_URL}/${img.trim()}`) // Avoid double-prefixing
+                : [`${this.BASE_URL}/images/placeholder.jpg`];
+              return {
+                like,
+                deal: {
+                  Id: dto.id,
+                  images,
+                  Title: dto.title,
+                  Price: dto.price,
+                  OldPrice: dto.oldPrice,
+                  Discount: dto.discount,
+                  Rating: dto.rating,
+                  Reviews: dto.reviews,
+                  ExpiryDate: dto.expiryDate,
+                  DealStartingDate: dto.dealStartingDate,
+                  SubcategoryId: dto.subcategoryId,
+                  Stock: dto.stock ?? 0, // Default to 0 if undefined
+                  CreatedAt: dto.createdAt,
+                  Region: dto.region,
+                  Subregion: dto.subRegion,
+                  UserId: dto.userId
+                }
+              };
+            });
             this.isLoading = false;
           },
           error: (err) => {
@@ -103,6 +147,6 @@ export class LikedComponent implements OnInit, OnDestroy {
 
   onImageError(event: Event): void {
     const imgElement = event.target as HTMLImageElement;
-    imgElement.src = 'assets/placeholder.jpg'; // Fallback image
+    imgElement.src = 'assets/placeholder.jpg'; // Consistent with template fallback
   }
 }

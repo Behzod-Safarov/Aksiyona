@@ -8,6 +8,7 @@ import { DealDto } from '../../../core/models/deal-dto';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 import { SubcategoryDto } from '../../../core/models/sub-category-dto';
+import { API_URLS } from '../../../core/constants/api_urls';
 
 @Component({
   selector: 'app-cabinet',
@@ -23,12 +24,12 @@ export class CabinetComponent implements OnInit {
   isLoading = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
-  public BASE_URL = 'http://localhost:5251';
   categories: { name: string; isOpen: boolean; subcategories: SubcategoryDto[] }[] = [];
   previewImages: string[] = [];
   imageFiles: File[] = [];
   imagesToKeep: string[] = [];
   maxImages = 4;
+  public BASE_URL = API_URLS.BASE_URL; // Centralized constant
 
   constructor(
     private apiService: ApiService,
