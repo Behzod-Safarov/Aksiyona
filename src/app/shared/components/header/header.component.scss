@@ -329,25 +329,7 @@
   padding: 6px;
   border-radius: 50px;
   gap: 10px;
-  position: relative;
-  border: 2px solid #2ecc71; /* Change to your preferred color */
-}
-
-.search-button {
-  background: #2ecc71; /* Change to your preferred color */
-  color: white;
-  border: none;
-  padding: 8px 10px;
-  border-radius: 30px;
-  cursor: pointer;
-}
-
-.search-bar input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  padding: 10px;
+  border: 2px solid #2ecc71;
 }
 
 .location-btn {
@@ -359,6 +341,23 @@
   align-items: center;
   gap: 5px;
   font-weight: bold;
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 10px;
+}
+
+.search-button {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 30px;
+  cursor: pointer;
 }
 
 .clear-btn {
@@ -870,7 +869,7 @@
         right: 6%;
       }
 
-    .search-bar { 
+      .search-bar {
         position: absolute;
         top: 90px;
         left: 50%;
@@ -878,12 +877,52 @@
         width: 90%;
         max-width: none;
         border-radius: 20px;
-    }
+      }
+    
+      .location-btn {
+        padding: 8px;
+      }
+
+      .search-button{
+        display: none;
+      }
     
     .category-menu{
         display: none;
     }
     
+}
+
+/* 450px dan kichik ekranlar uchun */
+@media (max-width: 450px) {
+  .search-bar {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%; /* Kichik ekranlarda kengroq */
+    padding: 4px;
+    border-radius: 15px;
+    gap: 5px; /* Elementlar orasidagi masofani qisqartirish */
+    display: flex; /* Flex tuzilishini saqlash */
+    align-items: center;
+  }
+
+  .location-btn {
+    padding: 6px;
+    font-size: 12px; /* Kichikroq font */
+    min-width: 50px; /* Juda kichik bo'lib ketmasligi uchun */
+  }
+
+  .search-bar input {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .search-button {
+    padding: 5px 7px;
+    font-size: 12px;
+  }
 }
 
 .cabinet-btn {
