@@ -1,5 +1,6 @@
-// there will be saved constant api urls to use in all over the app
 export const API_URLS = {
-  BASE_URL: 'http://localhost:5251',
-  API_URLS: 'http://localhost:5251/api',
+  BASE_URL: 'https://aksiyona.uz',
+  API_URLS: 'https://api.aksiyona.uz/api',
+  ISSUER: 'https://api.aksiyona.uz',
+  AUDIENCE: 'https://aksiyona.uz'
 };
